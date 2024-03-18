@@ -72,6 +72,7 @@ class Coin {
             WHERE coin_id = $2
             RETURNING *;
         `, [newPrice, id]);
+        return updatedPrice.rows[0];
     }   
 
     static async deleteById(id) {

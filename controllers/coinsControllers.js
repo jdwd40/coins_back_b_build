@@ -50,7 +50,7 @@ exports.deleteCoin = async (req, res) => {
     try {
         const id = req.params.id;
         await Coin.deleteById(id);
-        res.status(204).send({"msg": "Coin deleted successfully " });
+        res.status(204).send({ message: "Coin deleted successfully " });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting coin', error: error.message });
     }
