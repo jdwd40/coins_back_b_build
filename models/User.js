@@ -1,15 +1,43 @@
-const db = require('../db/connection'); // Path to your database connection
+const db = require('../db/connection');
+const bcrypt = require('bcrypt');
 
 class User {
     constructor(username, email, passwordHash, funds, dateCreated, lastLogin, profileSettings, isActive) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.funds = funds || 10000.00; // Default funds
+        this._funds = funds || 10000.00; // Default funds
         this.dateCreated = dateCreated || new Date();
-        this.lastLogin = lastLogin || new Date();
+        this._lastLogin = lastLogin || new Date();
         this.profileSettings = profileSettings || {};
-        this.isActive = isActive !== undefined ? isActive : true;
+        this._isActive = isActive !== undefined ? isActive : true;
+    }
+
+    // Getter and Setter for funds
+    get funds() {
+        return this._funds;
+    }
+
+    set funds(value) {
+        this._funds = value;
+    }
+
+    // Getter and Setter for lastLogin
+    get lastLogin() {
+        return this._lastLogin;
+    }
+
+    set lastLogin(value) {
+        this._lastLogin = value;
+    }
+
+    // Getter and Setter for isActive
+    get isActive() {
+        return this._isActive;
+    }
+
+    set isActive(value) {
+        this._isActive = value;
     }
 
     // Method to save a new user to the database
@@ -34,7 +62,96 @@ class User {
         }
     }
 
-    // Additional methods like login, update, delete can be added here
+    static async login(username, password) {
+        try {
+            // Fetch the user by email
+            const result = await db.query('SELECT * FROM users WHERE username = $1', [username]);
+            const user = result.rows[0];
+
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            // Compare the provided password with the stored hash
+            const isValid = await bcrypt.compare(password, user.password_hash);
+
+            if (!isValid) {
+                throw new Error('Invalid password');
+            }
+
+            // Return user if authentication is successful
+            // console.log("from model", user);
+            return {
+                userId: user.user_id,
+                username: user.username,
+                email: user.email,
+                funds: user.funds,
+                dateCreated: user.date_created,
+                lastLogin: user.last_login,
+                profileSettings: user.profile_settings,
+                isActive: user.is_active
+            };
+        } catch (error) {
+            throw error;
+        }
+
+    }
+
+    static async getFunds(user_id) {
+        try {
+            const result = await db.query('SELECT funds FROM users WHERE user_id = $1', [user_id]);
+            return result.rows[0].funds;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // write setFunds method here
+    static async setFunds(user_id, newFunds) {
+        try {
+            const result = await db.query('UPDATE users SET funds = $1 WHERE user_id = $2 RETURNING funds', [newFunds, user_id]);
+            return result.rows[0].funds;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async updateLoginTimestamp(user_id) {
+        try {
+            const result = await db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = $1', [user_id]);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async logout() {
+        // Destroy session
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Server error' });
+            }
+            res.status(200).json({ message: 'Logged out successfully' });
+        });
+    }
+
+    static async deleteUser(user_id) {
+        try {
+            const result = await db.query('DELETE FROM users WHERE user_id = $1', [user_id]);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async allusers() {
+        try {
+            const result = await db.query('SELECT * FROM users');
+            return result.rows;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = User;

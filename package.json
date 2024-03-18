@@ -6,14 +6,16 @@
   "scripts": {
     "test": "jest",
     "seed": "node db/run-seed.js",
-    "start": "node listen.js"
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.3",
+    "express-session": "^1.18.0",
     "pg": "^8.11.3",
     "pg-format": "^1.0.4"
   },
