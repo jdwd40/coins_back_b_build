@@ -129,15 +129,13 @@ const seed = (seedData) => {
             return db.query(sql);
         })
         .then(() => {
-            // Create Price History Table
+            // Create Price History Table without all_time_high and all_time_low
             return db.query(`
                 CREATE TABLE price_history (
                     history_id SERIAL PRIMARY KEY,
                     coin_id INTEGER NOT NULL REFERENCES coins(coin_id),
                     price NUMERIC NOT NULL,
-                    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    all_time_high NUMERIC NOT NULL,
-                    all_time_low NUMERIC NOT NULL
+                    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );`);
         })
         .then(() => {
@@ -145,18 +143,26 @@ const seed = (seedData) => {
             const formattedPriceHistory = price_history.map(entry => [
                 entry.coin_id,
                 entry.price,
-                entry.timestamp,
-                entry.all_time_high,
-                entry.all_time_low
+                entry.timestamp
             ]);
             const sql = format(`
                 INSERT INTO price_history 
-                (coin_id, price, timestamp, all_time_high, all_time_low) 
+                (coin_id, price, timestamp) 
                 VALUES %L RETURNING *;`,
                 formattedPriceHistory
             );
             return db.query(sql);
+        })
+        .then(() => {
+            // Create an index on the coin_id column
+            return db.query(`CREATE INDEX idx_price_history_coin_id ON price_history(coin_id);`);
+        })
+        .then(() => {
+            // Create an index on the timestamp column
+            return db.query(`CREATE INDEX idx_price_history_timestamp ON price_history(timestamp);`);
         });
+
+        // ... any additional seeding or setup ...
 };
 
 module.exports = { seed };
