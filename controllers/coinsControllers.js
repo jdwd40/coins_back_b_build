@@ -1,4 +1,5 @@
 // controllers/coinsController.js
+const PriceHistory = require('../models/PriceHistory');
 
 const Coin = require('../models/Coin');
 
@@ -18,6 +19,10 @@ exports.getCoinById = async (req, res) => {
         if (!coin) {
             return res.status(404).json({ message: 'Coin not found' });
         }
+        // get rpice history and all time high and low
+        coin.priceHistory = await PriceHistory.getByCoinId(id);
+        coin.allTimeHigh = await PriceHistory.getAllTimeHigh(id);
+        coin.allTimeLow = await PriceHistory.getAllTimeLow(id);
         res.status(200).json(coin);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching coin', error: error.message });
