@@ -22,13 +22,17 @@ class PriceHistory {
         }
     }
 
-    static async addEntry(coinId, price) {
+    static async addEntry(coinId, price, timestamp = new Date()) {
         try {
-            const result = await db.query('INSERT INTO price_history (coin_id, price) VALUES ($1, $2) RETURNING *', [coinId, price]);
-            const newRow = result.rows[0];
-            return new PriceHistory(newRow.coin_id, newRow.price, newRow.timestamp);
+            const result = await db.query(`
+                INSERT INTO price_history (coin_id, price, timestamp) 
+                VALUES ($1, $2, $3) 
+                RETURNING *;
+            `, [coinId, price, timestamp]);
+
+            return result.rows[0];
         } catch (error) {
-            throw new Error('Error adding price history entry: ' + error.message);
+            throw new Error(`Error adding price history entry: ${error.message}`);
         }
     }
 

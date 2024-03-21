@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "seed": "node db/run-seed.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "price": "node price_logic/index.js"
   },
   "author": "",
   "license": "ISC",
