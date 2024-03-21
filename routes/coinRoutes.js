@@ -10,6 +10,8 @@ router.get('/', coinsController.getAllCoins);
 // Get a single coin by ID
 router.get('/:id', coinsController.getCoinById);
 
+router.get('/:id/priceHistory', coinsController.getPriceHistory);
+
 // Create a new coin
 router.post('/', coinsController.createCoin);
 

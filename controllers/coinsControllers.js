@@ -19,13 +19,55 @@ exports.getCoinById = async (req, res) => {
         if (!coin) {
             return res.status(404).json({ message: 'Coin not found' });
         }
-        // get rpice history and all time high and low
+
         coin.priceHistory = await PriceHistory.getByCoinId(id);
         coin.allTimeHigh = await PriceHistory.getAllTimeHigh(id);
         coin.allTimeLow = await PriceHistory.getAllTimeLow(id);
+        // calculate median average
+        coin.priceHistory.sort((a, b) => a.price - b.price);
+        const mid = Math.floor(coin.priceHistory.length / 2);
+        coin.medianAverage = coin.priceHistory.length % 2 !== 0 ? coin.priceHistory[mid].price : (coin.priceHistory[mid - 1].price + coin.priceHistory[mid].price) / 2;
+
+        if (!coin.priceHistory || coin.priceHistory.length === 0) {
+            coin.meanAverage = null;
+            coin.medianAverage = null;
+        } else {
+            const prices = coin.priceHistory.map(entry => Number(entry.price));
+            console.log("Prices:", prices); // Check the converted prices
+
+            const sum = prices.reduce((acc, price) => {
+                const updatedAcc = acc + price;
+                console.log(`Current price: ${price}, Updated accumulator: ${updatedAcc}`);
+                return updatedAcc;
+            }, 0);
+            console.log("Sum:", sum); // Check the sum
+
+            coin.meanAverage = sum / prices.length;
+            console.log("Mean Average:", coin.meanAverage); // Check the calculated average
+            // ... rest of your code ...
+        }
+
+
         res.status(200).json(coin);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching coin', error: error.message });
+    }
+};
+
+
+
+
+exports.getPriceHistory = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const coin = await Coin.getById(id);
+        if (!coin) {
+            return res.status(404).json({ message: 'Coin not found' });
+        }
+        const priceHistory = await PriceHistory.getByCoinId(id);
+        res.status(200).json(priceHistory);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching price history', error: error.message });
     }
 };
 
