@@ -9,9 +9,11 @@ class PriceHistory {
         this.timestamp = timestamp;
     }
 
-    static async getByCoinId(coinId) {
+    static async getByCoinId(coinId, minutes = 30) {
         try {
-            const result = await db.query('SELECT * FROM price_history WHERE coin_id = $1 ORDER BY timestamp', [coinId]);
+            const currentTime = new Date();
+            const startTime = new Date(currentTime.getTime() - minutes * 60000); // Convert minutes to milliseconds
+            const result = await db.query('SELECT * FROM price_history WHERE coin_id = $1 AND timestamp >= $2 ORDER BY timestamp', [coinId, startTime]);
             return result.rows.map(row => new PriceHistory(row.coin_id, row.price, row.timestamp));
         } catch (error) {
             throw new Error('Error fetching price history: ' + error.message);
