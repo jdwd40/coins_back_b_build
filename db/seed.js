@@ -2,14 +2,16 @@ const db = require('./connection');
 const format = require('pg-format');
 
 const seed = (seedData) => {
-    const { users, portfolios, transactions, coins, price_history } = seedData; // Include transactions in your seed data
-
+    const { users, portfolios, transactions, coins, price_history, generalEventsData, coinEventsData } = seedData; // Include transactions in your seed data
+    console.log('General Events Data:', generalEventsData);
     return db
         .query('DROP TABLE IF EXISTS transactions CASCADE;')
         .then(() => db.query('DROP TABLE IF EXISTS portfolios CASCADE;'))
         .then(() => db.query('DROP TABLE IF EXISTS users CASCADE;'))
         .then(() => db.query('DROP TABLE IF EXISTS coins CASCADE;'))
         .then(() => db.query('DROP TABLE IF EXISTS price_history CASCADE;'))
+        .then(() => db.query('DROP TABLE IF EXISTS general_events CASCADE;'))
+        .then(() => db.query('DROP TABLE IF EXISTS coin_events CASCADE;'))
         .then(() => {
             return db.query(`
                 CREATE TABLE users (
@@ -154,6 +156,80 @@ const seed = (seedData) => {
             return db.query(sql);
         })
         .then(() => {
+            // Create General Events Table
+            return db.query(`
+                CREATE TABLE general_events (
+                    event_id SERIAL PRIMARY KEY,
+                    type VARCHAR(255) NOT NULL,
+                    start_time TIMESTAMP NOT NULL,
+                    end_time TIMESTAMP NOT NULL,
+                    details JSONB
+                );
+            `);
+        })
+        .then(() => {
+            // Insert General Events Data
+            const formattedGeneralEvents = generalEventsData.map(event => [
+                event.type,
+                event.start_time,
+                event.end_time,
+                JSON.stringify(event.details)
+            ]);
+            const sqlGeneralEvents = format(`
+                INSERT INTO general_events 
+                (type, start_time, end_time, details) 
+                VALUES %L RETURNING *;`,
+                formattedGeneralEvents
+            );
+            return db.query(sqlGeneralEvents);
+        })
+        .then(() => {
+            // Insert General Events Data
+            const formattedGeneralEvents = generalEventsData.map(event => [
+                event.type,
+                event.start_time,
+                event.end_time,
+                JSON.stringify(event.details)
+            ]);
+            const sqlGeneralEvents = format(`
+                INSERT INTO general_events 
+                (type, start_time, end_time, details) 
+                VALUES %L RETURNING *;`,
+                formattedGeneralEvents
+            );
+            return db.query(sqlGeneralEvents);
+        })
+        .then(() => {
+            // Create Coin Events Table
+            return db.query(`
+                CREATE TABLE coin_events (
+                    event_id SERIAL PRIMARY KEY,
+                    coin_id INTEGER NOT NULL REFERENCES coins(coin_id),
+                    type VARCHAR(255) NOT NULL,
+                    start_time TIMESTAMP NOT NULL,
+                    end_time TIMESTAMP NOT NULL,
+                    details JSONB
+                );
+            `);
+        })
+        .then(() => {
+            // Insert Coin Events Data
+            const formattedCoinEvents = coinEventsData.map(event => [
+                event.coin_id,
+                event.type,
+                event.start_time,
+                event.end_time,
+                JSON.stringify(event.details)
+            ]);
+            const sqlCoinEvents = format(`
+                INSERT INTO coin_events 
+                (coin_id, type, start_time, end_time, details) 
+                VALUES %L RETURNING *;`,
+                formattedCoinEvents
+            );
+            return db.query(sqlCoinEvents);
+        })
+        .then(() => {
             // Create an index on the coin_id column
             return db.query(`CREATE INDEX idx_price_history_coin_id ON price_history(coin_id);`);
         })
@@ -162,7 +238,7 @@ const seed = (seedData) => {
             return db.query(`CREATE INDEX idx_price_history_timestamp ON price_history(timestamp);`);
         });
 
-        // ... any additional seeding or setup ...
+    // ... any additional seeding or setup ...
 };
 
 module.exports = { seed };

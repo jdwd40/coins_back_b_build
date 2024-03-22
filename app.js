@@ -26,4 +26,12 @@ app.listen(9001, () => {
     console.log('Server is running on port 9001');
 });
 
+// create a function that logs timmer test to the console every 10 seconds
+
+function logTimer() {
+    console.log('Timer test');
+}
+
+setInterval(logTimer, 10000);
+
 module.exports = app; // Export for testing
