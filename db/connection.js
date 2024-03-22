@@ -5,9 +5,7 @@ require('dotenv').config({
   path: `${__dirname}/../.env.${ENV}`,
 });
 
-console.log('process.env.DATABASE', process.env.PGDATABASE);
 
-console.log('process.env.PASSWORD', process.env.PGPASSWORD);
 if (!process.env.PGDATABASE) {
   throw new Error('PGDATABASE not set');
 }

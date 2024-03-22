@@ -4,6 +4,7 @@ const format = require('pg-format');
 const seed = (seedData) => {
     const { users, portfolios, transactions, coins, price_history, generalEventsData, coinEventsData } = seedData; // Include transactions in your seed data
     console.log('General Events Data:', generalEventsData);
+
     return db
         .query('DROP TABLE IF EXISTS transactions CASCADE;')
         .then(() => db.query('DROP TABLE IF EXISTS portfolios CASCADE;'))
@@ -202,28 +203,30 @@ const seed = (seedData) => {
         .then(() => {
             // Create Coin Events Table
             return db.query(`
-                CREATE TABLE coin_events (
-                    event_id SERIAL PRIMARY KEY,
-                    coin_id INTEGER NOT NULL REFERENCES coins(coin_id),
-                    type VARCHAR(255) NOT NULL,
-                    start_time TIMESTAMP NOT NULL,
-                    end_time TIMESTAMP NOT NULL,
-                    details JSONB
-                );
-            `);
+            CREATE TABLE coin_events (
+                event_id SERIAL PRIMARY KEY,
+                coin_id INTEGER NOT NULL REFERENCES coins(coin_id),
+                type VARCHAR(255) NOT NULL,
+                is_positive BOOLEAN NOT NULL,
+                impact VARCHAR(50) NOT NULL,
+                start_time TIMESTAMP NOT NULL,
+                end_time TIMESTAMP NOT NULL
+            );
+        `);
         })
         .then(() => {
             // Insert Coin Events Data
             const formattedCoinEvents = coinEventsData.map(event => [
                 event.coin_id,
                 event.type,
+                event.is_positive,
+                event.impact,
                 event.start_time,
-                event.end_time,
-                JSON.stringify(event.details)
+                event.end_time
             ]);
             const sqlCoinEvents = format(`
                 INSERT INTO coin_events 
-                (coin_id, type, start_time, end_time, details) 
+                (coin_id, type, is_positive, impact, start_time, end_time) 
                 VALUES %L RETURNING *;`,
                 formattedCoinEvents
             );

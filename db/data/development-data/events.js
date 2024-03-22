@@ -16,19 +16,21 @@ const generalEventsData = [
 
 const coinEventsData = [
     {
-        coin_id: 1, // assuming coin with ID 1 exists
-        type: 'boom',
-        start_time: new Date('2024-01-01T10:00:00Z'),
-        end_time: new Date('2024-01-01T13:00:00Z'),
-        details: { description: 'Coin specific boom event' }
+        coin_id: 1,
+        type: 'Technological Breakthrough',
+        is_positive: true,
+        impact: 'high',
+        start_time: new Date('2024-03-22T09:00:00Z'),
+        end_time: new Date('2024-03-22T09:15:00Z')
     },
     {
-        coin_id: 2, // assuming coin with ID 2 exists
-        type: 'bust',
-        start_time: new Date('2024-01-02T11:00:00Z'),
-        end_time: new Date('2024-01-02T14:00:00Z'),
-        details: { description: 'Coin specific bust event' }
-    }
+        coin_id: 2,
+        type: 'Negative Media Coverage',
+        is_positive: false,
+        impact: 'low',
+        start_time: new Date('2024-03-22T10:00:00Z'),
+        end_time: new Date('2024-03-22T10:30:00Z')
+    },
     // ... other coin event entries ...
 ];
 module.exports = { generalEventsData, coinEventsData };

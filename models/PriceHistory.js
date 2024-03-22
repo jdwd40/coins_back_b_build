@@ -14,8 +14,8 @@ class PriceHistory {
             console.log(`coinId: ${coinId}, minutes: ${minutes}`)
             const currentTime = new Date();
             const startTime = new Date(currentTime.getTime() - minutes * 60000); // Convert minutes to milliseconds
-            const result = await db.query('SELECT * FROM price_history WHERE coin_id = $1 AND timestamp >= $2 ORDER BY timestamp', [coinId, startTime]);
-            console.log(result.rows);
+            const result = await db.query('SELECT * FROM price_history WHERE coin_id = $1 AND timestamp >= $2 ORDER BY timestamp DESC', [coinId, startTime]);
+            
             return result.rows.map(row => new PriceHistory(row.coin_id, row.price, row.timestamp));
         } catch (error) {
             throw new Error('Error fetching price history: ' + error.message);
@@ -53,6 +53,7 @@ class PriceHistory {
             throw new Error('Error fetching all-time low: ' + error.message);
         }
     }
+
 }
 
 module.exports = PriceHistory;

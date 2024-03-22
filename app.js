@@ -3,6 +3,7 @@ const session = require('express-session');
 const app = express();
 const cors = require('cors');
 const routes = require('./routes');
+const priceAdjust = require('./price_logic/index');
 
 app.use(express.json()); // for parsing application/json
 
@@ -28,10 +29,7 @@ app.listen(9001, () => {
 
 // create a function that logs timmer test to the console every 10 seconds
 
-function logTimer() {
-    console.log('Timer test');
-}
 
-setInterval(logTimer, 10000);
+setInterval(priceAdjust, 30000);
 
 module.exports = app; // Export for testing

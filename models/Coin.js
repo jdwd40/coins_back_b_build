@@ -80,6 +80,22 @@ class Coin {
         const result = await db.query('DELETE FROM coins WHERE coin_id = $1', [id]);
         return result.rows[0];
     }
+
+    static async getCoinEvent(coinId) {
+        // Logic to fetch the event associated with a specific coin
+        const coin = await db.query('SELECT * FROM coin_events WHERE coin_id = $1', [coinId]);
+        return coin.rows;
+    }
+
+    static async addCoinEvent(event) {
+        // Logic to create a new event for a specific coin
+        const newEvent = await db.query(`
+            INSERT INTO coin_events (coin_id, type, impact, is_positive, start_time, end_time)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *;
+        `, [event.coin_id, event.event_type, event.impact, event.is_positive, event.start_time, event.end_time]);
+        return newEvent.rows[0];
+    }
 }
 
 module.exports = Coin;

@@ -2,6 +2,7 @@
 const PriceHistory = require('../models/PriceHistory');
 
 const Coin = require('../models/Coin');
+const CoinEvent = require('../models/CoinEvent');
 
 exports.getAllCoins = async (req, res) => {
     try {
@@ -33,20 +34,27 @@ exports.getCoinById = async (req, res) => {
             coin.medianAverage = null;
         } else {
             const prices = coin.priceHistory.map(entry => Number(entry.price));
-            console.log("Prices:", prices); // Check the converted prices
+            //console.log("Prices:", prices); // Check the converted prices
 
             const sum = prices.reduce((acc, price) => {
                 const updatedAcc = acc + price;
-                console.log(`Current price: ${price}, Updated accumulator: ${updatedAcc}`);
+                // console.log(`Current price: ${price}, Updated accumulator: ${updatedAcc}`);
                 return updatedAcc;
             }, 0);
-            console.log("Sum:", sum); // Check the sum
+           // console.log("Sum:", sum); // Check the sum
 
             coin.meanAverage = sum / prices.length;
-            console.log("Mean Average:", coin.meanAverage); // Check the calculated average
+            // console.log("Mean Average:", coin.meanAverage); // Check the calculated average
             // ... rest of your code ...
+            // get coin event 
+            const coinEvent = await CoinEvent.getCurrentEvent(id);
+            console.log("***** LOG: Coin Event:", coinEvent);
+            coin.eventType = coinEvent[0].type;
+            console.log("***** LOG: Coin Event Type:", coin.eventType);
+            coin.coinEventPositive = coinEvent[0].is_positive;
+            coin.eventImpact = coinEvent[0].impact;
+            coin.message = "Coin price history fetched successfully";
         }
-
 
         res.status(200).json(coin);
     } catch (error) {
