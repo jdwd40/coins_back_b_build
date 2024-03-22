@@ -48,9 +48,18 @@ exports.getCoinById = async (req, res) => {
             // ... rest of your code ...
             // get coin event 
             const coinEvent = await CoinEvent.getCurrentEvent(id);
-            console.log("***** LOG: Coin Event:", coinEvent);
+            // console.log("***** LOG: Coin Event:", coinEvent);
+            // calculate duration left from start time to end time
+            const currentTime = Date.now();
+            const eventStartTime = coinEvent[0].start_time;
+            const eventEndTime = coinEvent[0].end_time;
+            const remainingTime = eventEndTime - currentTime;
+            const remainingMinutes = Math.floor(remainingTime / 60000);
+            const remainingSeconds = Math.floor((remainingTime % 60000) / 1000);
+            coin.eventDuration = `${remainingMinutes} mins ${remainingSeconds} secs`;
+
             coin.eventType = coinEvent[0].type;
-            console.log("***** LOG: Coin Event Type:", coin.eventType);
+            // console.log("***** LOG: Coin Event Type:", coin.eventType);
             coin.coinEventPositive = coinEvent[0].is_positive;
             coin.eventImpact = coinEvent[0].impact;
             coin.message = "Coin price history fetched successfully";
