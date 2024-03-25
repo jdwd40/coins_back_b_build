@@ -1,4 +1,49 @@
 const Transaction = require('../models/Transaction'); // Adjust the path as needed
+const Coin = require('../models/Coin');
+const Portfolio = require('../models/Portfolio');
+const User = require('../models/User');
+
+exports.handleTransaction = async (req, res) => {
+    try {
+        const { user_id, coin_id, type, amount, price } = req.body;
+
+        // Basic validation
+        if (!user_id || !coin_id || !type || !amount) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+        // calculate total price of transaction, get current coin price
+        const current_price = await Coin.getPriceById(coin_id);
+        const totalPrice = Number(amount) * current_price;
+        console.log('totalPrice:', totalPrice);
+
+        if (type === 'buy') {
+            // portfolio model now handles the logic for adding coins, including updating the user's funds
+            const buyCoin = await Portfolio.add( user_id, coin_id, amount, totalPrice );
+            // if buy coin returns msg: insufficient funds, return error
+            if (buyCoin.msg) {
+                return res.status(400).json({ message: buyCoin.msg });
+            }
+
+        } else if (type === 'sell') {
+            // Ensure the user has enough of the coin to sell
+           const sellCoin = await Portfolio.sell(user_id, coin_id, amount);
+            // if sell coin returns msg: you do not own this coin, return error
+            if (sellCoin.msg) {
+                return res.status(400).json({ message: sellCoin.msg });
+            }
+        } else {
+            return res.status(400).json({ message: 'Invalid transaction type' });
+        }
+
+        // Save the transaction
+        await Transaction.add( user_id, coin_id, type, amount, current_price );
+
+        res.status(201).json({ message: 'Transaction successful' });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error processing transaction', error: error.message });
+    }
+};
 
 exports.addTransaction = async (req, res) => {
     try {

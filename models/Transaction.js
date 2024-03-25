@@ -11,12 +11,13 @@ class Transaction {
         this.timestamp = timestamp;
     }
 
-    static async add(userId, coinId, type, amount, price) {
+    static async add(user_id, coin_id, type, amount, price) {
+
         try {
             const result = await db.query(
                 `INSERT INTO transactions (user_id, coin_id, type, amount, price, timestamp) 
                 VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *;`,
-                [userId, coinId, type, amount, price]
+                [user_id, coin_id, type, amount, price]
             );
             const newTransaction = result.rows[0];
             return new Transaction(newTransaction.transaction_id, newTransaction.user_id, newTransaction.coin_id, newTransaction.type, newTransaction.amount, newTransaction.price, newTransaction.timestamp);

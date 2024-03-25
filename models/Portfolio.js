@@ -13,7 +13,20 @@ class Portfolio {
         return result.rows.map(row => new Portfolio(row.portfolio_id, row.user_id, row.coin_id, row.amount));
     }
 
-    static async add(userId, coinId, amount) {
+    static async add(userId, coinId, amount, totalPrice) {
+        // check if the user has enough funds
+        console.log('totalPrice from add: ', totalPrice, amount);
+        const user = await db.query('SELECT * FROM users WHERE user_id = $1', [userId]);
+        if (user.rows[0].funds < totalPrice) {
+            return { "msg": "Insufficient funds" };
+        } else {
+            // update user's funds for a buy transaction
+            const updatedFunds = await db.query('UPDATE users SET funds = funds - $1 WHERE user_id = $2 RETURNING *;', [totalPrice, userId]);
+            const updatedUser = updatedFunds.rows[0];
+            console.log('updatedUser: ', updatedUser);
+        }
+       
+
         const existingPortfolio = await db.query('SELECT * FROM portfolios WHERE user_id = $1 AND coin_id = $2', [userId, coinId]);
         if (existingPortfolio.rows.length > 0) {
             const updatedPortfolio = await db.query(
@@ -31,7 +44,26 @@ class Portfolio {
         }
     }
 
-    static async update(user_id, coin_id, newAmount) {
+    
+    /**
+     * Updates the amount of a specific coin in a user's portfolio.
+     * If the updated amount is 0, the coin entry is deleted from the portfolio.
+     * @param {string} user_id - The ID of the user.
+     * @param {string} coin_id - The ID of the coin.
+     * @param {number} newAmount - The new amount of the coin.
+     * @returns {object} - The updated portfolio entry or a message indicating deletion.
+     */
+    static async sell(user_id, coin_id, newAmount) {
+        // check to see if use has this coin in their portfolio
+        const existingPortfolio = await db.query('SELECT * FROM portfolios WHERE user_id = $1 AND coin_id = $2', [user_id, coin_id]);
+        if (existingPortfolio.rows.length === 0) {
+            return { "msg": "You do not own this coin" };
+        }
+        // update user's funds
+        const user = await db.query('SELECT * FROM users WHERE user_id = $1', [user_id]);
+        const updatedFunds = await db.query('UPDATE users SET funds = funds + $1 WHERE user_id = $2 RETURNING *;', [newAmount, user_id]);
+        const updatedUser = updatedFunds.rows[0];
+        console.log('updatedUser: ', updatedUser);
         const result = await db.query(
             'UPDATE portfolios SET amount = amount - $1 WHERE user_id = $2 AND coin_id = $3 RETURNING *;',
             [newAmount, user_id, coin_id]

@@ -23,6 +23,25 @@ class Coin {
         return coin.rows[0];
     }
 
+    static async getPriceById(id) {
+        try {
+            // Execute the query to fetch the current price of the coin with the given ID
+            const result = await db.query('SELECT current_price FROM coins WHERE coin_id = $1', [id]);
+    
+            // Check if the coin was found
+            if (result.rows.length === 0) {
+                throw new Error(`Coin with ID ${id} not found`);
+            }
+    
+            // Convert the price to a number and return it
+            return Number(result.rows[0].current_price);
+        } catch (error) {
+            console.error(`Error fetching price for coin ID ${id}: ${error.message}`);
+            throw error;
+        }
+    }
+    
+
     static async create(newCoinData) {
         // Logic to add a new coin to the database
         let { name, symbol, current_price, supply, market_cap, date_added, description } = newCoinData;

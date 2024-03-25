@@ -11,7 +11,7 @@ transRouter.get('/', transController.getAllTransactions);
 transRouter.get('/:user_id', transController.getTransactionsByUserId);
 
 // Create a new transaction
-transRouter.post('/', transController.addTransaction);
+transRouter.post('/', transController.handleTransaction);
 
 // delete a transaction
 transRouter.delete('/:trans_id', transController.deleteTransaction);
