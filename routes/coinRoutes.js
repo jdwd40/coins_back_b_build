@@ -22,8 +22,10 @@ router.put('/:id', coinsController.updateCoin);
 router.delete('/:id', coinsController.deleteCoin);
 
 // Update coin price
-router.patch('/:id/price', coinsController.updateCoinPrice);
+router.patch('/:id/setprice', coinsController.updateCoinPrice);
 
 router.get('/:id/events', coinsController.getCoinEventsById);
+
+router.get('/:id/getprice', coinsController.getCoinPrice);
 
 module.exports = router;

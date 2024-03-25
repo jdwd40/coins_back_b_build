@@ -1,7 +1,7 @@
 // controllers/coinsController.js
 const moment = require('moment');
 const PriceHistory = require('../models/PriceHistory');
-
+const GeneralEvent = require('../models/GeneralEvent');
 const Coin = require('../models/Coin');
 const CoinEvent = require('../models/CoinEvent');
 
@@ -10,8 +10,11 @@ exports.getAllCoins = async (req, res) => {
         const coins = await Coin.getAll();
         const marketTotal = await Coin.getMarketTotal();
         console.log("Market Total:", marketTotal);
-
-        coins.push({ marketTotal });
+        const currentEvent = await GeneralEvent.getCurrentEvent();
+        // use moment to convert start_time and end_time to human readable format
+        currentEvent.start_time = moment(currentEvent.start_time).format('LLLL');
+        currentEvent.end_time = moment(currentEvent.end_time).format('LLLL');
+        coins.push({ marketTotal, currentEvent });
 
         res.status(200).json(coins);
     } catch (error) {
@@ -152,3 +155,17 @@ exports.getCoinEventsById = async (req, res) => {
         res.status(500).json({ message: 'Error fetching coin events', error: error.message });
     }
 };
+
+exports.getCoinPrice = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const coin = await Coin.getById(id);
+        if (!coin) {
+            return res.status(404).json({ message: 'Coin not found' });
+        }
+        const currentPrice = Number(coin.current_price);
+        res.status(200).json({ current_price: currentPrice });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching price', error: error.message });
+    }
+}

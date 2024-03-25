@@ -17,7 +17,7 @@ router.use('/users', userRoutes);
 
 router.use('/coins', coinRoutes); 
 
-router.use('/priceHistory', priceHistoryRoutes); 
+router.use('/history', priceHistoryRoutes); 
 
 router.use('/events', generalEventsRoutes);
 
