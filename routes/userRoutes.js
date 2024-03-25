@@ -39,13 +39,16 @@ userRouter.put('/setFunds/:user_id', (req, res) => {
 });
 
 userRouter.delete('/:user_id', (req, res) => {
-    console.log("Delete User route hit");
     userController.deleteUser(req, res);
 });
 
 userRouter.get('/', (req, res) => {
     console.log("Logout route hit");
     userController.allusers(req, res);
+});
+
+userRouter.get('/:user_id', (req, res) => {
+    userController.getUserById(req, res);
 });
 
 module.exports = userRouter;

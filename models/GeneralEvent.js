@@ -13,9 +13,13 @@ class GeneralEvent {
 
 
     static async addEvent(event) {
-        console.log('event from addEvent: ', event);
-        const result = await db.query(`INSERT INTO general_events (type, start_time, end_time) VALUES ($1, $2, $3) RETURNING *`, [event.type, event.start_time, event.end_time]);
-        return result.rows[0];
+        try {
+            console.log('event from addEvent: ', event);
+            const result = await db.query(`INSERT INTO general_events (type, start_time, end_time) VALUES ($1, $2, $3) RETURNING *`, [event.type, event.start_time, event.end_time]);
+            return result.rows[0];
+        } catch (error) {
+            throw new Error('Error adding event from generalEvent model: ' + error.message);
+        }
     }
 
     static async getCurrentEvent() {

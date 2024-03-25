@@ -115,6 +115,24 @@ class Coin {
         `, [event.coin_id, event.event_type, event.impact, event.is_positive, event.start_time, event.end_time]);
         return newEvent.rows[0];
     }
+
+    static async getMarketTotal() {
+        try {
+            // Logic to calculate the total market cap of all coins
+            const result = await db.query('SELECT SUM(current_price) FROM coins');
+            console.log('result.rows[0]: ', result.rows[0].sum);
+            // Check if the result is null or undefined
+            if (!result.rows[0]) {
+                throw new Error('Unable to calculate market total');
+            }
+    
+            // Convert the market total to a number and return it
+            return Number(result.rows[0].sum);
+        } catch (error) {
+            console.error(`Error calculating market total: ${error.message}`);
+            throw error;
+        }
+    }
 }
 
 module.exports = Coin;

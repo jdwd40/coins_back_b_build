@@ -147,3 +147,17 @@ exports.deleteUser = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+exports.getUserById = async (req, res) => {
+    try {
+        // Fetch user by ID
+        const user = await User.getUserById(req.params.user_id);
+
+        // Return success response
+        res.status(200).json(user);
+
+    } catch (error) {
+        // Handle errors
+        res.status(500).json({ message: 'Server error' });
+    }
+};

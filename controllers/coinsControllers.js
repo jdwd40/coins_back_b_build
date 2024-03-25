@@ -8,6 +8,11 @@ const CoinEvent = require('../models/CoinEvent');
 exports.getAllCoins = async (req, res) => {
     try {
         const coins = await Coin.getAll();
+        const marketTotal = await Coin.getMarketTotal();
+        console.log("Market Total:", marketTotal);
+
+        coins.push({ marketTotal });
+
         res.status(200).json(coins);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching coins', error: error.message });
