@@ -46,7 +46,6 @@ class GeneralEvent {
 
     static async getAllEvents() {
         try {
-            const currentDate = new Date();
             const result = await db.query(`
                 SELECT * FROM general_events
                 ORDER BY start_time DESC

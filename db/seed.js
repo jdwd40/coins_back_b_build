@@ -13,6 +13,7 @@ const seed = (seedData) => {
         .then(() => db.query('DROP TABLE IF EXISTS price_history CASCADE;'))
         .then(() => db.query('DROP TABLE IF EXISTS general_events CASCADE;'))
         .then(() => db.query('DROP TABLE IF EXISTS coin_events CASCADE;'))
+        .then(() => db.query('DROP TABLE IF EXISTS portfolios CASCADE;'))
         .then(() => {
             return db.query(`
                 CREATE TABLE users (
@@ -240,8 +241,6 @@ const seed = (seedData) => {
             // Create an index on the timestamp column
             return db.query(`CREATE INDEX idx_price_history_timestamp ON price_history(timestamp);`);
         });
-
-    // ... any additional seeding or setup ...
 };
 
 module.exports = { seed };
