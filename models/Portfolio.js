@@ -31,11 +31,18 @@ class Portfolio {
         }
     }
 
-    static async update(portfolioId, newAmount) {
+    static async update(user_id, coin_id, newAmount) {
         const result = await db.query(
-            'UPDATE portfolios SET amount = $1 WHERE portfolio_id = $2 RETURNING *;',
-            [newAmount, portfolioId]
+            'UPDATE portfolios SET amount = amount - $1 WHERE user_id = $2 AND coin_id = $3 RETURNING *;',
+            [newAmount, user_id, coin_id]
         );
+        // check to see if there is amount 0, if so delete the row
+        // change amount string to number
+        const amount = Number(result.rows[0].amount);
+        if (amount === 0) {
+            await db.query('DELETE FROM portfolios WHERE user_id = $1 AND coin_id = $2', [user_id, coin_id]);
+            return { "msg": "coin entry deleted"};
+        }
         const updatedPortfolio = result.rows[0];
         return new Portfolio(updatedPortfolio.portfolio_id, updatedPortfolio.user_id, updatedPortfolio.coin_id, updatedPortfolio.amount);
     }

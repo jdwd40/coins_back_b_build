@@ -35,9 +35,16 @@ exports.addToPortfolio = async (req, res) => {
     }
 };
 
-exports.updatePortfolio = async (req, res) => {
-    // Implement logic to update an existing portfolio entry
-    // You'll likely need the portfolio ID and the new amount of coins
+exports.updateAmountFromPortfolio = async (req, res) => {
+    // reduces the amount of coins held if user sells some coins
+    try {
+        const { user_id } = req.params;
+        const { coin_id, amount } = req.body;
+        const updatedPortfolio = await Portfolio.update(user_id, coin_id, amount);
+        res.status(200).json(updatedPortfolio);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating portfolio', error: error.message });
+    }
 };
 
 exports.deleteFromPortfolio = async (req, res) => {
