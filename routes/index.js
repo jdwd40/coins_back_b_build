@@ -6,6 +6,7 @@ const coinRoutes = require('./coinRoutes');
 const priceHistoryRoutes = require('./priceHistoryRoutes'); 
 const generalEventsRoutes = require('./generalEventsRoutes');
 const portfolioRoutes = require('./portfolioRoutes');
+const transactionRoutes = require('./transactionRoutes');
 
 router.get('/', (req, res) => {
     res.send({"msg:": "ok"});
@@ -21,5 +22,7 @@ router.use('/priceHistory', priceHistoryRoutes);
 router.use('/events', generalEventsRoutes);
 
 router.use('/portfolios', portfolioRoutes);
+
+router.use('/transactions', transactionRoutes);
 
 module.exports = router;
