@@ -7,8 +7,8 @@ class CoinEvent {
     }
 
     static async getById(id) {
-        const result = await db.query(`SELECT * FROM coin_events WHERE event_id = $1`, [id]);
-        return result.rows[0];
+        const result = await db.query(`SELECT * FROM coin_events WHERE coin_id = $1`, [id]);
+        return result.rows;
     }
 
     static async addEntry(event) {

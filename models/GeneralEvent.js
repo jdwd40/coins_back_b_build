@@ -43,7 +43,19 @@ class GeneralEvent {
             throw new Error('Error fetching current event: ' + error.message);
         }
     }
-    
+
+    static async getAllEvents() {
+        try {
+            const currentDate = new Date();
+            const result = await db.query(`
+                SELECT * FROM general_events
+                ORDER BY start_time DESC
+            `);
+            return result.rows;
+        } catch (error) {
+            throw new Error('Error fetching all events: ' + error.message);
+        }
+    }
 }
 
 module.exports = GeneralEvent;

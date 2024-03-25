@@ -1,4 +1,5 @@
 // controllers/coinsController.js
+const moment = require('moment');
 const PriceHistory = require('../models/PriceHistory');
 
 const Coin = require('../models/Coin');
@@ -51,7 +52,6 @@ exports.getCoinById = async (req, res) => {
             // console.log("***** LOG: Coin Event:", coinEvent);
             // calculate duration left from start time to end time
             const currentTime = Date.now();
-            const eventStartTime = coinEvent[0].start_time;
             const eventEndTime = coinEvent[0].end_time;
             const remainingTime = eventEndTime - currentTime;
             const remainingMinutes = Math.floor(remainingTime / 60000);
@@ -62,7 +62,7 @@ exports.getCoinById = async (req, res) => {
             // console.log("***** LOG: Coin Event Type:", coin.eventType);
             coin.coinEventPositive = coinEvent[0].is_positive;
             coin.eventImpact = coinEvent[0].impact;
-            coin.message = "Coin price history fetched successfully";
+            
         }
 
         res.status(200).json(coin);
@@ -70,8 +70,6 @@ exports.getCoinById = async (req, res) => {
         res.status(500).json({ message: 'Error fetching coin', error: error.message });
     }
 };
-
-
 
 
 exports.getPriceHistory = async (req, res) => {
@@ -128,5 +126,24 @@ exports.updateCoinPrice = async (req, res) => {
         res.status(200).json(updatedCoin);
     } catch (error) {
         res.status(500).json({ message: 'Error updating coin price', error: error.message });
+    }
+};
+
+exports.getCoinEventsById = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const coinEvents = await CoinEvent.getById(id);
+        console.log("Coin Events:", coinEvents);
+
+        const formattedCoinEvents = coinEvents.map(event => ({
+            ...event,
+            start_time: moment(event.start_time).format('LLLL'), // Format to human-readable time
+            end_time: moment(event.end_time).format('LLLL'),
+            duration: moment.duration(moment(event.end_time).diff(moment(event.start_time))).humanize() // Duration in human-readable format (e.g., '2 hours', 'a day')
+        }));
+
+        res.status(200).json(formattedCoinEvents);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching coin events', error: error.message });
     }
 };
