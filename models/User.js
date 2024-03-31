@@ -179,6 +179,16 @@ class User {
             throw error;
         }
     }
+
+    static async checkFunds(user_id, amount) {
+        // return true if user has enough funds, false otherwise
+        try {
+            const result = await db.query('SELECT funds FROM users WHERE user_id = $1', [user_id]);
+            return result.rows[0].funds >= amount;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = User;

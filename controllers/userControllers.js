@@ -125,7 +125,7 @@ exports.getFunds = async (req, res) => {
 exports.setFunds = async (req, res) => {
     try {
         // Update funds for the user
-        const newFunds = await User.setFunds(req.params.user_id, req.body.funds);
+        const newFunds = await User.setFunds(req.params.user_id, req.body.newFunds);
 
         // Return success response
         res.status(200).json({ funds: newFunds });

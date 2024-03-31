@@ -22,8 +22,13 @@ exports.handleTransaction = async (req, res) => {
         const current_price = await Coin.getPriceById(coin_id);
         const totalPrice = amountNum * current_price;
         console.log('totalPrice:', totalPrice);
-
+        
         if (type === 'buy') {
+            const fundsCheck = await User.checkFunds(user_id, totalPrice);
+            console.log('fundsCheck:', fundsCheck);
+            if (!fundsCheck) {
+                return res.status(400).json({ message: "Not enough funds!" });
+            }
             const buyResult = await Portfolio.add(user_id, coin_id, amountNum, totalPrice);
             if (buyResult.msg) {
                 return res.status(400).json({ message: buyResult.msg });
