@@ -54,6 +54,15 @@ class PriceHistory {
         }
     }
 
+    static async getAveragePrice(coinId) {
+        try {
+            const result = await db.query('SELECT AVG(price) as avg FROM price_history WHERE coin_id = $1', [coinId]);
+            return result.rows[0].avg;
+        } catch (error) {
+            throw new Error('Error fetching average price: ' + error.message);
+        }
+    }
+
 }
 
 module.exports = PriceHistory;

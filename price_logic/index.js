@@ -10,11 +10,11 @@ async function priceAdjust() {
     try {
         const coins = await Coin.getAll();
         const marketTrend = await determineMarketTrend(); // Function to determine if it's bull or bear market
-        console.log(`Market trend: ${marketTrend.type}`);
+
         const duration = (marketTrend.end_time - marketTrend.start_time) / (1000 * 60);
         console.log(`Market event duration: ${duration} minutes length`);
         const durationLeft = (marketTrend.end_time - new Date()) / (1000 * 60);
-        console.log(`Time left for market event: ${durationLeft} minutes`);
+
 
         for (const coin of coins) {
             let newPrice = coin.current_price;
@@ -25,8 +25,6 @@ async function priceAdjust() {
 
             // Check and apply coin-specific event
             const coinEvent = await checkCoinEvent(coin);
-            console.log(`Coin event for ${coin.name}: ${coinEvent.event_type}
-             `);
 
             if (coinEvent) {
                 newPrice = await applyCoinEvent(newPrice, coinEvent);
@@ -38,7 +36,7 @@ async function priceAdjust() {
             await PriceHistory.addEntry(coin.coin_id, newPrice);
         }
 
-        console.log('Price adjustment completed successfully');
+
     } catch (error) {
         console.error(`Error during price adjustment: ${error.message}`);
     }
@@ -188,7 +186,7 @@ async function createCoinEvent(coin_id) {
 
 // Example usage
 createCoinEvent(1).then(event => {
-    console.log(event); // Logs a randomly generated event for coin_id 1
+    // console.log(event); // Logs a randomly generated event for coin_id 1
 });
 
 
