@@ -15,7 +15,7 @@ exports.getAllCoins = async (req, res) => {
         currentEvent.start_time = moment(currentEvent.start_time).format('LLLL');
         currentEvent.end_time = moment(currentEvent.end_time).format('LLLL');
         coins.push({ marketTotal, currentEvent });
-
+        console.log("______________________ ----------------- ++++++++++++++ Coins, from controller:", coins);
         res.status(200).json(coins);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching coins', error: error.message });

@@ -161,6 +161,24 @@ class User {
             throw error;
         }
     }
+
+    static async updateFundsAfterBuy(user_id, amount) {
+        try {
+            const result = await db.query('UPDATE users SET funds = funds - $1 WHERE user_id = $2 RETURNING funds', [amount, user_id]);
+            return result.rows[0].funds;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async updateFundsAfterSell(user_id, amount) {
+        try {
+            const result = await db.query('UPDATE users SET funds = funds + $1 WHERE user_id = $2 RETURNING funds', [amount, user_id]);
+            return result.rows[0].funds;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = User;

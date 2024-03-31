@@ -30,6 +30,6 @@ app.listen(9001, () => {
 // create a function that logs timmer test to the console every 10 seconds
 
 
-setInterval(priceAdjust, 30000);
+ setInterval(priceAdjust, 30000);
 
 module.exports = app; // Export for testing
