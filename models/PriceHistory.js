@@ -63,6 +63,34 @@ class PriceHistory {
         }
     }
 
+    static async getClosestValueByCoinId(coinId, minutesAgo) {
+        try {
+            const targetTime = new Date(new Date().getTime() - minutesAgo * 60000);
+            const { rows } = await db.query(`
+                SELECT price
+                FROM price_history
+                WHERE coin_id = $1 AND timestamp <= $2
+                ORDER BY ABS(EXTRACT(EPOCH FROM (timestamp - $2))) ASC
+                LIMIT 1;
+            `, [coinId, targetTime]);
+            return rows.length > 0 ? rows[0].price : null;
+        } catch (error) {
+            throw new Error(`Error retrieving value closest to ${minutesAgo} minutes ago: ${error.message}`);
+        }
+    }
+
+    static async getLast5minsValueByCoinId(coinId) {
+        return this.getClosestValueByCoinId(coinId, 5);
+    }
+
+    static async getLast10minsValueByCoinId(coinId) {
+        return this.getClosestValueByCoinId(coinId, 10);
+    }
+
+    static async getLast30minsValueByCoinId(coinId) {
+        return this.getClosestValueByCoinId(coinId, 30);
+    }
+
 }
 
 module.exports = PriceHistory;

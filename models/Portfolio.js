@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const Coin = require('./Coin');
 
 class Portfolio {
     constructor(portfolio_id, user_id, coin_id, amount) {
@@ -68,6 +69,19 @@ class Portfolio {
             return false;
         }
         return result.rows[0].amount >= amount;
+    }
+
+    static async getValue(userId) {
+     // this function will return the total value of the user's portfolio. use Coin.getPriceById(coinId) to get the current price of each coin in the users portfolio. Calcuate the sum and return the value
+     
+        const userPortfolio = await Portfolio.getByUserId(userId);
+        let totalValue = 0;
+        for (let i = 0; i < userPortfolio.length; i++) {
+            const coin = userPortfolio[i];
+            const coinPrice = await Coin.getPriceById(coin.coin_id);
+            totalValue += coin.amount * coinPrice;
+        }
+        return totalValue;
     }
 }
 

@@ -25,15 +25,19 @@ exports.getStats = async (req, res) => {
     const percentage10mins = ((marketValue - last10minsMarketValue) / last10minsMarketValue) * 100;
     const percentage30mins = ((marketValue - last30minsMarketValue) / last30minsMarketValue) * 100;
 
+    const formattedPercentage5mins = percentage5mins.toFixed(2) + '%';
+    const formattedPercentage10mins = percentage10mins.toFixed(2) + '%';
+    const formattedPercentage30mins = percentage30mins.toFixed(2) + '%';
+
     const stats = {
         event: event,
         marketValue: formattedMarketValue,
         last5minsMarketValue: formattedLast5minsMarketValue,
-        percentage5mins: percentage5mins,
+        percentage5mins: formattedPercentage5mins,
         last10minsMarketValue: formattedLast10minsMarketValue,
-        percentage10mins: percentage10mins,
+        percentage10mins: formattedPercentage10mins,
         last30minsMarketValue: formattedLast30minsMarketValue,
-        percentage30mins: percentage30mins
+        percentage30mins: formattedPercentage30mins
     };
 
     return res.status(200).json(stats);

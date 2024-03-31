@@ -3,6 +3,7 @@ const PriceHistory = require('../models/PriceHistory');
 const GeneralEvent = require('../models/GeneralEvent');
 
 const db = require('../db/connection');
+const e = require('express');
 
 async function priceAdjust() {
     console.log(' ------------------------------------');
@@ -47,10 +48,10 @@ async function determineMarketTrend() {
     // look at event table to see if there is a market event
     const marketEvent = await GeneralEvent.getCurrentEvent();
     // if there is a market event, return the name of the event market trend returns null then create a new market event
-    if (marketEvent) {
-        return marketEvent;
-    } else {
+    if (marketEvent.msg === 'no event') {
         return await createMarketEvent();
+    } else {
+        return marketEvent;
     }
 
 }
@@ -59,7 +60,7 @@ async function createMarketEvent() {
     // Logic to create a market event
     // randomly generate a market event, boom, bust, bull, bear, also generate a time range for the event between 5 - 15 minutes
     console.log('Creating new market event');
-    const events = ['bull', 'bear'];
+    const events = ['bull', 'bear', 'boom', 'bust'];
     const type = events[Math.floor(Math.random() * events.length)];
     const duration = Math.floor(Math.random() * 11) + 5; // Random duration between 5 to 15 minutes
     const start_time = new Date();
@@ -75,9 +76,13 @@ async function applyMarketTrend(newPrice, trendType) {
     // loop thro coins and update price based on market trend
     // change newPrice into a number
     if (trendType === 'bull') {
-        newPrice *= 1.1; // Increase price by 10%
+        newPrice *= 1.01; // Increase price by 1%
     } else if (trendType === 'bear') {
-        newPrice *= 0.9; // Decrease price by 10%
+        newPrice *= 0.99; // Decrease price by 1%
+    } else if (trendType === 'boom') {
+        newPrice *= 1.05; // Increase price by 5%
+    } else if (trendType === 'bust') {
+        newPrice *= 0.95; // Decrease price by 5%
     }
     return newPrice;
 

@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Portfolio = require('../models/Portfolio');
+
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // or any other number you prefer
 
@@ -152,7 +154,11 @@ exports.getUserById = async (req, res) => {
     try {
         // Fetch user by ID
         const user = await User.getUserById(req.params.user_id);
-
+        // get user portfolio
+        const portfolio = await Portfolio.getByUserId(req.params.user_id);
+        const portfolioValue = await Portfolio.getValue(req.params.user_id);
+        user.portfolio = portfolio;
+        user.portfolioValue = portfolioValue;
         // Return success response
         res.status(200).json(user);
 

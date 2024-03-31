@@ -41,7 +41,7 @@ class GeneralEvent {
                     details: event.details
                 };
             } else {
-                return null;
+                return {msg: "no event"};
             }
         } catch (error) {
             throw new Error('Error fetching current event: ' + error.message);
