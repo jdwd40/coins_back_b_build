@@ -1,6 +1,7 @@
 const moment = require('moment');
 const MarketStats = require('../models/MarketStats');
 const GeneralEvent = require('../models/GeneralEvent');
+const Coin = require('../models/Coin');
 
 exports.getStats = async (req, res) => {
     // calculate market value
@@ -29,6 +30,14 @@ exports.getStats = async (req, res) => {
     const formattedPercentage10mins = percentage10mins.toFixed(2) + '%';
     const formattedPercentage30mins = percentage30mins.toFixed(2) + '%';
 
+    const top3Coins = await Coin.getTop3Coins();
+    const top3CoinsArray = top3Coins.map(coin => {
+        return {
+            name: coin.name,
+            price: coin.current_price
+        };
+    });
+
     const stats = {
         event: event,
         marketValue: formattedMarketValue,
@@ -37,7 +46,8 @@ exports.getStats = async (req, res) => {
         last10minsMarketValue: formattedLast10minsMarketValue,
         percentage10mins: formattedPercentage10mins,
         last30minsMarketValue: formattedLast30minsMarketValue,
-        percentage30mins: formattedPercentage30mins
+        percentage30mins: formattedPercentage30mins,
+        top3Coins: top3CoinsArray
     };
 
     return res.status(200).json(stats);

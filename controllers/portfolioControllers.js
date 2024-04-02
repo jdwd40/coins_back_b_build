@@ -1,25 +1,22 @@
 const Portfolio = require('../models/Portfolio');
-const Coin = require('../models/Coin');
-
+const  {fetchAndUpdateCoinDetails} = require('./utils/fetchAndUpdateCoinDetails');
 exports.getUserPortfolio = async (req, res) => {
     try {
-        const id = req.params.id;
-        const portfolio = await Portfolio.getByUserId(id);
-        // calculate the total value of the portfolio, get current price and name from coins table
+        const userId = req.params.id;
+        const portfolio = await Portfolio.getByUserId(userId);
         let totalValue = 0;
-        for (let i = 0; i < portfolio.length; i++) {
-            const coin = portfolio[i];
-            const coinId = coin.coin_id;
-            const amount = coin.amount;
-            const coinData = await Coin.getById(coinId);
-            const price = coinData.current_price;
-            const name = coinData.name;
-            coin.name = name;
-            coin.current_price = price;
-            totalValue += price * amount;
-        }
-        portfolio.push({ totalValue });
-        res.status(200).json(portfolio);
+
+        // Use Promise.all to process all coin entries concurrently
+        const updatedPortfolio = await Promise.all(
+            portfolio.map(async coin => {
+                const updatedCoin = await fetchAndUpdateCoinDetails(coin);
+                totalValue += updatedCoin.current_price * updatedCoin.amount;
+                return updatedCoin;
+            })
+        );
+
+        updatedPortfolio.push({ totalValue }); // Add total value as a separate entry
+        res.status(200).json(updatedPortfolio);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching portfolio', error: error.message });
     }

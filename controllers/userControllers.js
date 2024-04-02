@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Portfolio = require('../models/Portfolio');
+const {fetchAndUpdateCoinDetails} = require('./utils/fetchAndUpdateCoinDetails');
 
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // or any other number you prefer
@@ -150,20 +151,35 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
+// Assuming fetchAndUpdateCoinDetails function is defined as mentioned previously
+
 exports.getUserById = async (req, res) => {
     try {
+        const userId = req.params.user_id;
+
         // Fetch user by ID
-        const user = await User.getUserById(req.params.user_id);
-        // get user portfolio
-        const portfolio = await Portfolio.getByUserId(req.params.user_id);
-        const portfolioValue = await Portfolio.getValue(req.params.user_id);
-        user.portfolio = portfolio;
+        const user = await User.getUserById(userId);
+
+        // Get user portfolio
+        const portfolio = await Portfolio.getByUserId(userId);
+
+        // Update each coin detail in the portfolio
+        const updatedPortfolio = await Promise.all(
+            portfolio.map(coin => fetchAndUpdateCoinDetails(coin))
+        );
+
+        // Calculate total portfolio value
+        const portfolioValue = updatedPortfolio.reduce((total, coin) => total + coin.current_price * coin.amount, 0);
+
+        // Add portfolio and its total value to the user object
+        user.portfolio = updatedPortfolio;
         user.portfolioValue = portfolioValue;
+
         // Return success response
         res.status(200).json(user);
 
     } catch (error) {
         // Handle errors
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

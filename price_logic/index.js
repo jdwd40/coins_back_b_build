@@ -2,9 +2,6 @@ const Coin = require('../models/Coin');
 const PriceHistory = require('../models/PriceHistory');
 const GeneralEvent = require('../models/GeneralEvent');
 
-const db = require('../db/connection');
-const e = require('express');
-
 async function priceAdjust() {
     console.log(' ------------------------------------');
     console.log(' ------------------ Starting price adjustment process ------------------');
@@ -53,16 +50,23 @@ async function determineMarketTrend() {
     } else {
         return marketEvent;
     }
-
 }
 
 async function createMarketEvent() {
     // Logic to create a market event
     // randomly generate a market event, boom, bust, bull, bear, also generate a time range for the event between 5 - 15 minutes
     console.log('Creating new market event');
-    const events = ['bull', 'bear', 'boom', 'bust'];
-    const type = events[Math.floor(Math.random() * events.length)];
-    const duration = Math.floor(Math.random() * 11) + 5; // Random duration between 5 to 15 minutes
+    const events = ['bull', 'bear', 'boom', 'bust', 'bull', 'bear'];
+    let type = events[Math.floor(Math.random() * events.length)];
+    const duration = Math.floor(Math.random() * 13) + 3; // Random duration between 3 to 12 minutes
+    // if marketTotal is over 150 then even = bear
+    const marketTotal = await Coin.getMarketTotal();
+    if (marketTotal > 100) {
+        type = 'bear';
+    }
+    if (marketTotal < 3) {
+        type = 'bull';
+    }
     const start_time = new Date();
     const end_time = new Date(start_time.getTime() + duration * 60000); // Convert minutes to milliseconds
     const event = { type, start_time, end_time }
@@ -85,7 +89,6 @@ async function applyMarketTrend(newPrice, trendType) {
         newPrice *= 0.95; // Decrease price by 5%
     }
     return newPrice;
-
 }
 
 async function checkCoinEvent(coin) {
@@ -113,26 +116,26 @@ async function checkCoinEvent(coin) {
     return await createCoinEvent(coin.coin_id);
 }
 
-
 async function applyCoinEvent(price, event) {
     // Adjust price based on coin-specific event
     // loop through coins and update price based on coin event
     console.log(`Applying coin event - Type: ${event.event_type} impact: ${event.impact} is_positive: ${event.is_positive} Price: ${price}`);
     if (event.isPositive) {
         if (event.impact === 'high') {
-            price *= 1.2; // Increase price by 20%
+            // increase by 2 %
+            price *= 1.12; // Increase price by 12%
         } else if (event.impact === 'medium') {
-            price *= 1.1; // Increase price by 10%
-        } else if (event.impact === 'low') {
             price *= 1.05; // Increase price by 5%
+        } else if (event.impact === 'low') {
+            price *= 1.01; // Increase price by 1%
         }
     } else if (event.isPositive === false) {
         if (event.impact === 'high') {
-            price *= 0.8; // Decrease price by 20%
+            price *= 0.08; // Decrease price by 2%
         } else if (event.impact === 'medium') {
-            price *= 0.9; // Decrease price by 10%
+            price *= 0.09; // Decrease price by 1%
         } else if (event.impact === 'low') {
-            price *= 0.95; // Decrease price by 5%
+            price *= 0.095; // Decrease price by 0.5%
         }
     }
     // update price for coin

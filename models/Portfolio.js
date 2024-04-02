@@ -73,7 +73,7 @@ class Portfolio {
 
     static async getValue(userId) {
      // this function will return the total value of the user's portfolio. use Coin.getPriceById(coinId) to get the current price of each coin in the users portfolio. Calcuate the sum and return the value
-     
+
         const userPortfolio = await Portfolio.getByUserId(userId);
         let totalValue = 0;
         for (let i = 0; i < userPortfolio.length; i++) {

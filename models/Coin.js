@@ -133,6 +133,17 @@ class Coin {
             throw error;
         }
     }
+
+    static async getTop3Coins() {
+        try {
+            // Logic to fetch the top 3 coins by market cap
+            const result = await db.query('SELECT * FROM coins ORDER BY current_price DESC LIMIT 5');
+            return result.rows;
+        } catch (error) {
+            console.error(`Error fetching top 3 coins: ${error.message}`);
+            throw error;
+        }
+    }
 }
 
 module.exports = Coin;
