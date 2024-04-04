@@ -7,13 +7,13 @@ exports.getStats = async (req, res) => {
     // calculate market value
     const marketValue = await MarketStats.getMarketValue();
     // format market value
-    const formattedMarketValue = marketValue.toLocaleString('en-GB', { style: 'currency', currency: 'GPD' });
+    const formattedMarketValue = formatCurrency(marketValue);
     const last5minsMarketValue = await MarketStats.getLast5minsMarketValue();
-    const formattedLast5minsMarketValue = last5minsMarketValue.toLocaleString('en-GB', { style: 'currency', currency: 'GPD' });
+    const formattedLast5minsMarketValue = formatCurrency(last5minsMarketValue);
     const last10minsMarketValue = await MarketStats.getLast10minsMarketValue();
-    const formattedLast10minsMarketValue = last10minsMarketValue.toLocaleString('en-GB', { style: 'currency', currency: 'GPD' });
+    const formattedLast10minsMarketValue = formatCurrency(last10minsMarketValue);
     const last30minsMarketValue = await MarketStats.getLast30minsMarketValue();
-    const formattedLast30minsMarketValue = last30minsMarketValue.toLocaleString('en-GB', { style: 'currency', currency: 'GPD' });
+    const formattedLast30minsMarketValue = formatCurrency(last30minsMarketValue);
     // get market events
     const event = await GeneralEvent.getCurrentEvent();
     // format timestamps
@@ -34,9 +34,12 @@ exports.getStats = async (req, res) => {
     const top3CoinsArray = top3Coins.map(coin => {
         return {
             name: coin.name,
-            price: coin.current_price
+            price: formatCurrency(coin.current_price)
         };
     });
+
+    // get all time market high from price history table
+    const allTimeHigh = await MarketStats.getAllTimeHigh();
 
     const stats = {
         event: event,
@@ -47,8 +50,13 @@ exports.getStats = async (req, res) => {
         percentage10mins: formattedPercentage10mins,
         last30minsMarketValue: formattedLast30minsMarketValue,
         percentage30mins: formattedPercentage30mins,
-        top3Coins: top3CoinsArray
+        top3Coins: top3CoinsArray,
+        allTimeHigh: formatCurrency(allTimeHigh)
     };
 
     return res.status(200).json(stats);
+}
+
+function formatCurrency(value) {
+    return value.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
 }

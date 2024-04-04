@@ -16,8 +16,8 @@ class CoinEvent {
         return result.rows[0];
     }
 
-    static async getCurrentEvent() {
-        const result = await db.query(`SELECT * FROM coin_events WHERE end_time > CURRENT_TIMESTAMP`);
+    static async getCurrentEvent(coin_id) {
+        const result = await db.query(`SELECT * FROM coin_events WHERE coin_id = $1 AND end_time > CURRENT_TIMESTAMP`, [coin_id]);
         return result.rows;
     }
 }

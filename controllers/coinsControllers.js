@@ -69,7 +69,7 @@ exports.getCoinById = async (req, res) => {
             // ... rest of your code ...
             // get coin event 
             const coinEvent = await CoinEvent.getCurrentEvent(id);
-            // console.log("***** LOG: Coin Event:", coinEvent);
+            console.log("***** LOG: from get current event --- Coin Event:", coinEvent);
             // calculate duration left from start time to end time
             const currentTime = Date.now();
             const eventEndTime = coinEvent[0].end_time;
@@ -79,7 +79,6 @@ exports.getCoinById = async (req, res) => {
             coin.eventDuration = `${remainingMinutes} mins ${remainingSeconds} secs`;
 
             coin.eventType = coinEvent[0].type;
-            // console.log("***** LOG: Coin Event Type:", coin.eventType);
             coin.coinEventPositive = coinEvent[0].is_positive;
             coin.eventImpact = coinEvent[0].impact;
             
