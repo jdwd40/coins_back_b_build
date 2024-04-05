@@ -5,15 +5,17 @@ const Coin = require('../models/Coin');
 
 exports.getStats = async (req, res) => {
     // calculate market value
-    const marketValue = await MarketStats.getMarketValue();
+    const marketValue = Number(await MarketStats.getMarketValue()).toFixed(2);
     // format market value
-    const formattedMarketValue = formatCurrency(marketValue);
+    const formattedMarketValue = marketValue;
     const last5minsMarketValue = await MarketStats.getLast5minsMarketValue();
-    const formattedLast5minsMarketValue = formatCurrency(last5minsMarketValue);
+    const formattedLast5minsMarketValue = formatCurrency(last5minsMarketValue).toFixed(2);
     const last10minsMarketValue = await MarketStats.getLast10minsMarketValue();
-    const formattedLast10minsMarketValue = formatCurrency(last10minsMarketValue);
+    const formattedLast10minsMarketValue = formatCurrency(last10minsMarketValue).toFixed(2);
     const last30minsMarketValue = await MarketStats.getLast30minsMarketValue();
-    const formattedLast30minsMarketValue = formatCurrency(last30minsMarketValue);
+    const formattedLast30minsMarketValue = formatCurrency(last30minsMarketValue).toFixed(2);
+
+
     // get market events
     const event = await GeneralEvent.getCurrentEvent();
     // format timestamps
@@ -22,13 +24,14 @@ exports.getStats = async (req, res) => {
     event.time_left = moment.duration(moment(event.end_time).diff(moment())).asMinutes();
 
     // work out percentage rise for 5 mins
-    const percentage5mins = ((marketValue - last5minsMarketValue) / last5minsMarketValue) * 100;
-    const percentage10mins = ((marketValue - last10minsMarketValue) / last10minsMarketValue) * 100;
-    const percentage30mins = ((marketValue - last30minsMarketValue) / last30minsMarketValue) * 100;
+    const percentage5mins = parseFloat(((marketValue - last5minsMarketValue) / last5minsMarketValue) * 100).toFixed(2);
+    const percentage10mins = parseFloat(((marketValue - last10minsMarketValue) / last10minsMarketValue) * 100).toFixed(2);
+    const percentage30mins = parseFloat(((marketValue - last30minsMarketValue) / last30minsMarketValue) * 100).toFixed(2);
 
-    const formattedPercentage5mins = percentage5mins.toFixed(2) + '%';
-    const formattedPercentage10mins = percentage10mins.toFixed(2) + '%';
-    const formattedPercentage30mins = percentage30mins.toFixed(2) + '%';
+
+    const formattedPercentage5mins = percentage5mins + '%';
+    const formattedPercentage10mins = percentage10mins + '%';
+    const formattedPercentage30mins = percentage30mins + '%';
 
     const top3Coins = await Coin.getTop3Coins();
     const top3CoinsArray = top3Coins.map(coin => {
@@ -39,8 +42,8 @@ exports.getStats = async (req, res) => {
     });
 
     // get all time market high from price history table
-    const allTimeHigh = await MarketStats.getAllTimeHigh();
-    const allTimeLow = await MarketStats.getAllTimeLow();
+    const allTimeHigh = Number(await MarketStats.getAllTimeHighMarketValue()).toFixed(2);
+    // const allTimeLow = await MarketStats.getAllTimeLow();
 
     const stats = {
         event: event,
@@ -52,13 +55,14 @@ exports.getStats = async (req, res) => {
         last30minsMarketValue: formattedLast30minsMarketValue,
         percentage30mins: formattedPercentage30mins,
         top3Coins: top3CoinsArray,
-        allTimeHigh: formatCurrency(allTimeHigh),
-        allTimeLow: formatCurrency(allTimeLow)
+        allTimeHigh: formatCurrency(allTimeHigh)
     };
 
     return res.status(200).json(stats);
 }
 
 function formatCurrency(value) {
-    return value.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
+    return Math.round(value * 100) / 100;
 }
+
+exports.formatCurrency = formatCurrency;

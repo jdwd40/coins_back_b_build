@@ -76,22 +76,23 @@ class MarketStats {
         }
     }
 
-    static async getAllTimeHigh() {
+    static async getAllTimeHighMarketValue() {
+        // function should get the market value of coins every 5 mins and return the highest value
         try {
             const { rows } = await db.query(`
-                WITH MarketCaps AS (
-                    SELECT timestamp, SUM(price) AS total_market_cap
+                SELECT MAX(total_market_cap) AS all_time_high_market_cap
+                FROM (
+                    SELECT SUM(price) AS total_market_cap
                     FROM price_history
                     GROUP BY timestamp
-                )
-                SELECT MAX(total_market_cap) AS all_time_high_market_cap
-                FROM MarketCaps
+                ) AS grouped_market_caps
             `);
-            return rows[0] ? rows[0].all_time_high_market_cap : null;
+            return rows[0].all_time_high_market_cap;
         } catch (error) {
             console.error('Error retrieving all time high market cap:', error);
             throw error;
         }
+
     }
     
 

@@ -39,16 +39,12 @@ exports.getCoinById = async (req, res) => {
         coin.priceHistory.sort((a, b) => a.price - b.price);
         const mid = Math.floor(coin.priceHistory.length / 2);
         coin.medianAverage = coin.priceHistory.length % 2 !== 0 ? coin.priceHistory[mid].price : (coin.priceHistory[mid - 1].price + coin.priceHistory[mid].price) / 2;
-
-        coin.last5minsValue = await PriceHistory.getLast5minsValueByCoinId(id);
-        coin.percentage5mins = ((coin.current_price - coin.last5minsValue) / coin.last5minsValue) * 100;
-        coin.percentage5mins = coin.percentage5mins.toFixed(2) + '%';
-        coin.last10minsValue = await PriceHistory.getLast10minsValueByCoinId(id);
-        coin.percentage10mins = ((coin.current_price - coin.last10minsValue) / coin.last10minsValue) * 100;
-        coin.percentage10mins = coin.percentage10mins.toFixed(2) + '%';
-        coin.last30minsValue = await PriceHistory.getLast30minsValueByCoinId(id);
-        coin.percentage30mins = ((coin.current_price - coin.last30minsValue) / coin.last30minsValue) * 100;
-        coin.percentage30mins = coin.percentage30mins.toFixed(2) + '%';
+        coin.last5minsValue = Number(await PriceHistory.getLast5minsValueByCoinId(id)).toFixed(2);
+        coin.percentage5mins = ((coin.current_price - coin.last5minsValue) / coin.last5minsValue * 100).toFixed(2) + '%';
+        coin.last10minsValue = Number(await PriceHistory.getLast10minsValueByCoinId(id)).toFixed(2);
+        coin.percentage10mins = ((coin.current_price - coin.last10minsValue) / coin.last10minsValue * 100).toFixed(2) + '%';
+        coin.last30minsValue = Number(await PriceHistory.getLast30minsValueByCoinId(id)).toFixed(2);
+        coin.percentage30mins = ((coin.current_price - coin.last30minsValue) / coin.last30minsValue * 100).toFixed(2) + '%';
 
         if (!coin.priceHistory || coin.priceHistory.length === 0) {
             coin.meanAverage = null;

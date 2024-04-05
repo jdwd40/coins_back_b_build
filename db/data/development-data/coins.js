@@ -36,7 +36,7 @@ module.exports = [
       coin_id: 4,
       name: 'NovaCash',
       symbol: 'NVC',
-      current_price: 0.40,
+      current_price: 0.70,
       supply: 4500,
       market_cap: 18000,
       date_added: new Date('2024-03-22'),
@@ -46,7 +46,7 @@ module.exports = [
       coin_id: 5,
       name: 'Chaingenius',
       symbol: 'CHG',
-      current_price: 0.30,
+      current_price: 0.36,
       supply: 5000,
       market_cap: 15000,
       date_added: new Date('2024-03-22'),
@@ -56,7 +56,7 @@ module.exports = [
       coin_id: 6,
       name: 'StellaFortune',
       symbol: 'STF',
-      current_price: 0.050,
+      current_price: 0.52,
       supply: 5500,
       market_cap: 13750,
       date_added: new Date('2024-03-22'),
@@ -78,7 +78,7 @@ module.exports = [
       coin_id: 8,
       name: 'MeteorCoin',
       symbol: 'MTC',
-      current_price: 0.005, // Lower price
+      current_price: 0.1, // Lower price
       supply: 8000, // Larger supply
       market_cap: 6400, // Lower market cap
       date_added: new Date('2024-03-22'),
@@ -90,7 +90,7 @@ module.exports = [
       coin_id: 9,
       name: 'Cybercore',
       symbol: 'CYB',
-      current_price: 0.0005,
+      current_price: 0.17,
       supply: 6000,
       market_cap: 12000,
       date_added: new Date('2024-03-22'),
@@ -100,7 +100,7 @@ module.exports = [
       coin_id: 10,
       name: 'CryptoZen',
       symbol: 'CRZ',
-      current_price: 0.0023,
+      current_price: 0.13,
       supply: 6500,
       market_cap: 9750,
       date_added: new Date('2024-03-22'),

@@ -107,9 +107,9 @@ const seed = (seedData) => {
                     coin_id SERIAL PRIMARY KEY,
                     name VARCHAR(255) UNIQUE NOT NULL,
                     symbol VARCHAR(10) UNIQUE NOT NULL,
-                    current_price NUMERIC(20, 8) NOT NULL,
-                    supply NUMERIC(20, 8) NOT NULL,
-                    market_cap NUMERIC(20, 8) NOT NULL,
+                    current_price NUMERIC(4, 2) NOT NULL,
+                    supply NUMERIC(10) NOT NULL,
+                    market_cap NUMERIC(10) NOT NULL,
                     date_added TIMESTAMP NOT NULL,
                     description TEXT
                 );`);
