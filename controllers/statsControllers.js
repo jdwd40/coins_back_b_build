@@ -40,6 +40,7 @@ exports.getStats = async (req, res) => {
 
     // get all time market high from price history table
     const allTimeHigh = await MarketStats.getAllTimeHigh();
+    const allTimeLow = await MarketStats.getAllTimeLow();
 
     const stats = {
         event: event,
@@ -51,7 +52,8 @@ exports.getStats = async (req, res) => {
         last30minsMarketValue: formattedLast30minsMarketValue,
         percentage30mins: formattedPercentage30mins,
         top3Coins: top3CoinsArray,
-        allTimeHigh: formatCurrency(allTimeHigh)
+        allTimeHigh: formatCurrency(allTimeHigh),
+        allTimeLow: formatCurrency(allTimeLow)
     };
 
     return res.status(200).json(stats);

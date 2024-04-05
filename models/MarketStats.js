@@ -79,16 +79,35 @@ class MarketStats {
     static async getAllTimeHigh() {
         try {
             const { rows } = await db.query(`
+                WITH MarketCaps AS (
+                    SELECT timestamp, SUM(price) AS total_market_cap
+                    FROM price_history
+                    GROUP BY timestamp
+                )
                 SELECT MAX(total_market_cap) AS all_time_high_market_cap
+                FROM MarketCaps
+            `);
+            return rows[0] ? rows[0].all_time_high_market_cap : null;
+        } catch (error) {
+            console.error('Error retrieving all time high market cap:', error);
+            throw error;
+        }
+    }
+    
+
+    static async getAllTimeLow() {
+        try {
+            const { rows } = await db.query(`
+                SELECT MIN(total_market_cap) AS all_time_low_market_cap
                 FROM (
                     SELECT SUM(price) AS total_market_cap
                     FROM price_history
                     GROUP BY timestamp
                 ) AS grouped_market_caps
             `);
-            return rows[0].all_time_high_market_cap;
+            return rows[0].all_time_low_market_cap;
         } catch (error) {
-            console.error('Error retrieving all time high market cap:', error);
+            console.error('Error retrieving all time low market cap:', error);
             throw error;
         }
     }

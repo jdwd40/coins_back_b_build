@@ -21,3 +21,14 @@ exports.getEvents = async (req, res) => {
         res.status(500).json({ message: 'Error fetching events', error: error.message });
     }
 };
+
+exports.addEvent = async (req, res) => {
+    try {
+        const newEvent = req.body; // Ensure proper validation
+        const createdEvent = await GeneralEvent.addEvent(newEvent);
+        res.status(201).json(createdEvent);
+    } catch (error) {
+        console.error('Error in addEvent:', error);
+        res.status(500).json({ message: 'Error creating event', error: error.message });
+    }
+};
