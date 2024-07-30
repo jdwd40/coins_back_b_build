@@ -175,3 +175,13 @@ exports.getCoinPrice = async (req, res) => {
         res.status(500).json({ message: 'Error fetching price', error: error.message });
     }
 }
+
+exports.setCoinPrice = async (req, res) => {
+    try {
+        const { coin_id, current_price } = req.body;
+        const updatedCoin = await Coin.updatePriceById(coin_id, current_price);
+        res.status(200).json(updatedCoin);
+    } catch (error) {
+        res.status(500).json({ message: 'Error setting price', error: error.message });
+    }
+}
