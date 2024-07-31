@@ -179,7 +179,12 @@ exports.getCoinPrice = async (req, res) => {
 exports.setCoinPrice = async (req, res) => {
     try {
         const { coin_id, current_price } = req.body;
-        const updatedCoin = await Coin.updatePriceById(coin_id, current_price);
+        // convert current_price from a string to a currency value
+        // e.g., '100.00' -> 100.00
+        const currentPrice = Number(current_price);
+
+
+        const updatedCoin = await Coin.updatePriceById(coin_id, currentPrice);
         res.status(200).json(updatedCoin);
     } catch (error) {
         res.status(500).json({ message: 'Error setting price', error: error.message });
