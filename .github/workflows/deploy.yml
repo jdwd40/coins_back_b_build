@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Test SSH Connection
 
 on:
   push:
@@ -18,11 +18,6 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Deploy to Server
+    - name: Test SSH Connection
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 4020 jd@77.68.4.18 <<EOF
-          cd /home/jd
-          git pull origin master
-          npm install
-          pm2 restart app.js
-        EOF
+        ssh -i ~/.ssh/id_rsa -p 4020 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no jd@77.68.4.18 "echo SSH Connection Successful"
