@@ -11,17 +11,17 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install SSH Key
-      uses: webfactory/ssh-agent@v0.5.3
+      uses: webfactory/ssh-agent@v0.6.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Deploy to Server
       run: |
-        ssh -o StrictHostKeyChecking=no -p 4020 jd@77.68.4.18 <<EOF
-          cd /path_to_your_project
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 4020 jd@77.68.4.18 <<EOF
+          cd /home/jd
           git pull origin master
           npm install
           pm2 restart app.js
