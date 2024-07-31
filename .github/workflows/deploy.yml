@@ -20,7 +20,7 @@ jobs:
 
     - name: Deploy to Server
       run: |
-        ssh -o StrictHostKeyChecking=no jd@77.68.4.18 -p 4020 <<EOF
+        ssh -o StrictHostKeyChecking=no -p 4020 jd@77.68.4.18 <<EOF
           cd /path_to_your_project
           git pull origin main
           npm install
