@@ -19,6 +19,12 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
-    - name: Test SSH Connection
+    - name: Deploy to Server
       run: |
-        ssh -vvv -i ~/.ssh/id_rsa -p 4020 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no jd@77.68.4.18 "echo SSH Connection Successful"
+        ssh -i ~/.ssh/id_rsa -p 4020 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no jd@77.68.4.18 <<EOF
+          cd /home/jd
+          git pull origin master
+          npm install
+          pm2 restart app.js
+        EOF
+
