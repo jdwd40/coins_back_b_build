@@ -21,4 +21,4 @@ jobs:
 
     - name: Test SSH Connection
       run: |
-        ssh -i ~/.ssh/id_rsa -p 4020 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no jd@77.68.4.18 "echo SSH Connection Successful"
+        ssh -vvv -i ~/.ssh/id_rsa -p 4020 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no jd@77.68.4.18 "echo SSH Connection Successful"
