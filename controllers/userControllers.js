@@ -49,17 +49,16 @@ exports.login = async (req, res) => {
     try {
         // Extract data from request body
         const { username, email, password } = req.body;
-
         // Validate data
-        if (!username || !password || !email) {
+        if (!password || !email) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
         // Check if user exists
-        const user = await User.login(username, password);
+        const user = await User.login(email, password);
 
         // Return success response (exclude sensitive data like password)
-        console.log("from controller", user);
+        // console.log("from controller", user);
         res.status(200).json({
             user_id: user.user_id,
             username: user.username,
