@@ -10,13 +10,13 @@ const Portfolio = require('../models/Portfolio');
 exports.getAllCoins = async (req, res) => {
     try {
         const coins = await Coin.getAll();
-        const marketTotal = await Coin.getMarketTotal();
-        console.log("Market Total:", marketTotal);
-        const currentEvent = await GeneralEvent.getCurrentEvent();
+        // const marketTotal = await Coin.getMarketTotal();
+        // console.log("Market Total:", marketTotal);
+        // const currentEvent = await GeneralEvent.getCurrentEvent();
         // use moment to convert start_time and end_time to human readable format
-        currentEvent.start_time = moment(currentEvent.start_time).format('LLLL');
-        currentEvent.end_time = moment(currentEvent.end_time).format('LLLL');
-        coins.push({ marketTotal, currentEvent });
+        // currentEvent.start_time = moment(currentEvent.start_time).format('LLLL');
+        // currentEvent.end_time = moment(currentEvent.end_time).format('LLLL');
+        // coins.push({ marketTotal, currentEvent });
         console.log("______________________ ----------------- ++++++++++++++ Coins, from controller:", coins);
         res.status(200).json(coins);
     } catch (error) {

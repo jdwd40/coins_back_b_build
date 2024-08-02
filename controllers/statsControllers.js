@@ -58,6 +58,10 @@ exports.getStats = async (req, res) => {
         allTimeHigh: formatCurrency(allTimeHigh)
     };
 
+    const marketTotal = await Coin.getMarketTotal();
+    console.log("Market Total:", marketTotal);
+    stats.marketTotal = marketTotal;
+
     return res.status(200).json(stats);
 }
 
