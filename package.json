@@ -1,7 +1,7 @@
 {
-  "name": "back_coins",
+  "name": "back_coins_b",
   "version": "1.0.0",
-  "description": "coins back new build",
+  "description": "coins_b back new build",
   "main": "index.js",
   "scripts": {
     "test": "jest",
