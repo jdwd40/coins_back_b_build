@@ -48,10 +48,10 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         // Extract data from request body
-        const { username, password } = req.body;
+        const { username, email, password } = req.body;
 
         // Validate data
-        if (!username || !password) {
+        if (!username || !password || !email) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 

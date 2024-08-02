@@ -62,14 +62,14 @@ class User {
         }
     }
 
-    static async login(username, password) {
+    static async login(email, password) {
         try {
             // Fetch the user by email
-            const result = await db.query('SELECT * FROM users WHERE username = $1', [username]);
+            const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
             const user = result.rows[0];
 
             if (!user) {
-                throw new Error('User not found');
+                throw new Error('email not found');
             }
 
             // Compare the provided password with the stored hash
