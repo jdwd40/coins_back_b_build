@@ -11,7 +11,7 @@ userRouter.post('/register', (req, res) => {
 userRouter.post('/login', async (req, res) => {
     console.log("Login route hit");
     try {
-        const user = await User.login(req.body.username, req.body.password);
+        const user = await User.login(req.body.email, req.body.password);
         // console.log("from route", user);
         if (user) {
             // Create session here

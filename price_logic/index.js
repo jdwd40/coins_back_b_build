@@ -16,14 +16,14 @@ async function priceAdjust() {
 
             // Apply market trend
             newPrice = await applyMarketTrend(newPrice, marketTrend.type);
-            console.log(`Coin Price after market trend adjustment: ${coin.name} ${newPrice}`);
+            // console.log(`Coin Price after market trend adjustment: ${coin.name} ${newPrice}`);
 
             // Check and apply coin-specific event
             const coinEvent = await checkCoinEvent(coin);
 
             if (coinEvent) {
                 newPrice = await applyCoinEvent(newPrice, coinEvent);
-                console.log(`Price after coin event adjustment: ${newPrice}`);
+                // console.log(`Price after coin event adjustment: ${newPrice}`);
             }
 
             // Ensure prices don't fall below the minimum threshold
@@ -79,7 +79,7 @@ async function applyMarketTrend(newPrice, trendType) {
 }
 
 async function checkCoinEvent(coin) {
-    console.log(`Checking for coin event for ${coin.name}`);
+    // console.log(`Checking for coin event for ${coin.name}`);
     const coinEvents = await Coin.getCoinEvent(coin.coin_id);
     const currentEvent = coinEvents.find(event => {
         const now = new Date();
@@ -87,15 +87,15 @@ async function checkCoinEvent(coin) {
     });
     if (currentEvent) {
         const duration = (currentEvent.end_time - currentEvent.start_time) / (1000 * 60);
-        console.log(`Current event found for ${coin.name}: ${currentEvent.type} Event duration: ${duration} minutes`);
+        // console.log(`Current event found for ${coin.name}: ${currentEvent.type} Event duration: ${duration} minutes`);
         return currentEvent;
     }
-    console.log(`No current event found for ${coin.name}, creating a new event.`);
+    // console.log(`No current event found for ${coin.name}, creating a new event.`);
     return await createCoinEvent(coin.coin_id);
 }
 
 async function applyCoinEvent(price, event) {
-    console.log(`Applying coin event - Type: ${event.event_type} impact: ${event.impact} is_positive: ${event.is_positive} Price: ${price}`);
+    // console.log(`Applying coin event - Type: ${event.event_type} impact: ${event.impact} is_positive: ${event.is_positive} Price: ${price}`);
     if (event.is_positive) {
         if (event.impact === 'high') {
             price *= 1.2; // Increase price by 20%
@@ -142,7 +142,7 @@ async function createCoinEvent(coin_id) {
     const startTime = new Date();
     const durationInMinutes = Math.floor(Math.random() * 15) + 1;
     const endTime = new Date(startTime.getTime() + durationInMinutes * 60000);
-    console.log(`Creating new event for coin_id ${coin_id}: ${selectedEvent.type} - ${isPositive ? 'Positive' : 'Negative'} - Impact: ${selectedEvent.impact} - Start: ${startTime} - End: ${endTime}`);
+    // console.log(`Creating new event for coin_id ${coin_id}: ${selectedEvent.type} - ${isPositive ? 'Positive' : 'Negative'} - Impact: ${selectedEvent.impact} - Start: ${startTime} - End: ${endTime}`);
 
     const event = {
         coin_id: coin_id,

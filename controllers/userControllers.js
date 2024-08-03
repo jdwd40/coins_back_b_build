@@ -55,6 +55,7 @@ exports.login = async (req, res) => {
         }
 
         // Check if user exists
+        console.log("from controller", email, password);
         const user = await User.login(email, password);
 
         // Return success response (exclude sensitive data like password)
