@@ -4,7 +4,7 @@ module.exports = [
       coin_id: 1,
       name: 'BlockNation',
       symbol: 'BLN',
-      current_price: 5.00, // Higher price
+      current_price: 15.00, // Higher price
       supply: 2000, // Limited supply
       market_cap: 30000, // Higher market cap
       date_added: new Date('2024-03-22'),
@@ -14,7 +14,7 @@ module.exports = [
       coin_id: 2,
       name: 'FutureCoin',
       symbol: 'FTR',
-      current_price: 2.00, // Higher price
+      current_price: 12.00, // Higher price
       supply: 2500, // Limited supply
       market_cap: 30000, // Higher market cap
       date_added: new Date('2024-03-22'),
@@ -26,7 +26,7 @@ module.exports = [
       coin_id: 3,
       name: 'Byteon',
       symbol: 'BYT',
-      current_price: 0.60,
+      current_price: 5.60,
       supply: 4000,
       market_cap: 20000,
       date_added: new Date('2024-03-22'),
@@ -36,7 +36,7 @@ module.exports = [
       coin_id: 4,
       name: 'NovaCash',
       symbol: 'NVC',
-      current_price: 0.70,
+      current_price: 3.70,
       supply: 4500,
       market_cap: 18000,
       date_added: new Date('2024-03-22'),
@@ -46,7 +46,7 @@ module.exports = [
       coin_id: 5,
       name: 'Chaingenius',
       symbol: 'CHG',
-      current_price: 0.36,
+      current_price: 4.36,
       supply: 5000,
       market_cap: 15000,
       date_added: new Date('2024-03-22'),
@@ -56,7 +56,7 @@ module.exports = [
       coin_id: 6,
       name: 'StellaFortune',
       symbol: 'STF',
-      current_price: 0.52,
+      current_price: 3.52,
       supply: 5500,
       market_cap: 13750,
       date_added: new Date('2024-03-22'),
@@ -68,7 +68,7 @@ module.exports = [
       coin_id: 7,
       name: 'DigitalVault',
       symbol: 'DGV',
-      current_price: 0.02, // Lower price
+      current_price: 1.02, // Lower price
       supply: 7000, // Larger supply
       market_cap: 7000, // Lower market cap
       date_added: new Date('2024-03-22'),
@@ -78,7 +78,7 @@ module.exports = [
       coin_id: 8,
       name: 'MeteorCoin',
       symbol: 'MTC',
-      current_price: 0.1, // Lower price
+      current_price: 1.10, // Lower price
       supply: 8000, // Larger supply
       market_cap: 6400, // Lower market cap
       date_added: new Date('2024-03-22'),
@@ -90,7 +90,7 @@ module.exports = [
       coin_id: 9,
       name: 'Cybercore',
       symbol: 'CYB',
-      current_price: 0.17,
+      current_price: 2.17,
       supply: 6000,
       market_cap: 12000,
       date_added: new Date('2024-03-22'),
@@ -100,7 +100,7 @@ module.exports = [
       coin_id: 10,
       name: 'CryptoZen',
       symbol: 'CRZ',
-      current_price: 0.13,
+      current_price: 2.13,
       supply: 6500,
       market_cap: 9750,
       date_added: new Date('2024-03-22'),

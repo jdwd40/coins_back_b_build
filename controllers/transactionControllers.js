@@ -54,7 +54,6 @@ exports.handleTransaction = async (req, res) => {
     }
 };
 
-
 exports.addTransaction = async (req, res) => {
     try {
         const { userId, coinId, type, amount, price } = req.body;

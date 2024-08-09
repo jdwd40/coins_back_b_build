@@ -28,4 +28,6 @@ router.get('/:id/events', coinsController.getCoinEventsById);
 
 router.get('/:id/getprice', coinsController.getCoinPrice);
 
+router.put('/setprice', coinsController.setCoinPrice);
+
 module.exports = router;
