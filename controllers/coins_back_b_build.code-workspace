@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "SSH FS - coins_back_build_b",
+			"uri": "ssh://coins_back_build_b/"
+		}
+	],
+	"settings": {}
+}
