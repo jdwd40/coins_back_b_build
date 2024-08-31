@@ -21,7 +21,7 @@ jobs:
 
     - name: Deploy to Server
       run: |
-        ssh -i ~/.ssh/id_rsa -p 4020 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no jd@77.68.4.18 <<EOF
+        ssh -i ~/.ssh/id_rsa -p 4020 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=no jd@213.165.91.221 <<EOF
           cd /home/jd/coins_back_b_build
           git pull origin master
           npm install
