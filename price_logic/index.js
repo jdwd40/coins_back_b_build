@@ -1,3 +1,4 @@
+// Import necessary models
 const Coin = require('../models/Coin');
 const PriceHistory = require('../models/PriceHistory');
 const GeneralEvent = require('../models/GeneralEvent');
@@ -5,25 +6,26 @@ const GeneralEvent = require('../models/GeneralEvent');
 const PRICE_FLOOR = 0.1; // Define a price floor constant
 
 async function priceAdjust() {
-    console.log(' ------------------------------------');
-    console.log(' ------------------ Starting price adjustment process ------------------');
+    console.log('------------------------------------');
+    console.log('------------------ Starting price adjustment process ------------------');
     try {
         const coins = await Coin.getAll();
-        const marketTrend = await determineMarketTrend(); // Function to determine if it's a bull or bear market
+        const marketTrend = await determineMarketTrend();
 
         for (const coin of coins) {
             let newPrice = coin.current_price;
 
-            // Apply market trend
+            // Apply market trend gradually
             newPrice = await applyMarketTrend(newPrice, marketTrend.type);
-            // console.log(`Coin Price after market trend adjustment: ${coin.name} ${newPrice}`);
+
+            // Add daily fluctuation
+            const dailyFluctuation = (Math.random() - 0.5) * 0.01; // Random between -0.5% to +0.5%
+            newPrice *= (1 + dailyFluctuation);
 
             // Check and apply coin-specific event
             const coinEvent = await checkCoinEvent(coin);
-
             if (coinEvent) {
                 newPrice = await applyCoinEvent(newPrice, coinEvent);
-                // console.log(`Price after coin event adjustment: ${newPrice}`);
             }
 
             // Ensure prices don't fall below the minimum threshold
@@ -49,14 +51,14 @@ async function determineMarketTrend() {
 
 async function createMarketEvent() {
     console.log('Creating new market event');
-    const events = ['bull', 'bear', 'boom', 'bust', 'bull', 'bear'];
+    const events = ['bull', 'bear', 'bull', 'bear', 'bull', 'bear', 'boom', 'bust'];
     let type = events[Math.floor(Math.random() * events.length)];
-    const duration = Math.floor(Math.random() * 13) + 3; // Random duration between 3 to 12 minutes
+    const duration = Math.floor(Math.random() * 21) + 5; // Random duration between 5 to 20 minutes
     const marketTotal = await Coin.getMarketTotal();
-    if (marketTotal > 150) {
-        type = 'bear';
-    } else if (marketTotal < 50) {
-        type = 'bull';
+    if (marketTotal > 450) {
+        type = 'bust';
+    } else if (marketTotal < 150) {
+        type = 'boom';
     }
     const start_time = new Date();
     const end_time = new Date(start_time.getTime() + duration * 60000); // Convert minutes to milliseconds
@@ -66,51 +68,54 @@ async function createMarketEvent() {
 }
 
 async function applyMarketTrend(newPrice, trendType) {
+    let percentageChange;
+    const trendWeight = 0.25; // Apply 25% of trend effect per adjustment cycle
+
     if (trendType === 'bull') {
-        newPrice *= 1.1; // Increase price by 10%
+        percentageChange = Math.random() * 0.09 + 0.005; // Random between 0.5% and 9%
+        newPrice += (trendWeight * (newPrice * percentageChange));
     } else if (trendType === 'bear') {
-        newPrice *= 0.9; // Decrease price by 10%
+        percentageChange = Math.random() * 0.09 + 0.005; // Random between 0.5% and 9%
+        newPrice -= (trendWeight * (newPrice * percentageChange));
     } else if (trendType === 'boom') {
-        newPrice *= 1.2; // Increase price by 20%
+        percentageChange = Math.random() * 0.05 + 0.1; // Random between 10% and 15%
+        newPrice += (trendWeight * (newPrice * percentageChange));
     } else if (trendType === 'bust') {
-        newPrice *= 0.8; // Decrease price by 20%
+        percentageChange = Math.random() * 0.05 + 0.1; // Random between 10% and 15%
+        newPrice -= (trendWeight * (newPrice * percentageChange));
     }
+
     return newPrice;
 }
 
 async function checkCoinEvent(coin) {
-    // console.log(`Checking for coin event for ${coin.name}`);
     const coinEvents = await Coin.getCoinEvent(coin.coin_id);
     const currentEvent = coinEvents.find(event => {
         const now = new Date();
         return now >= new Date(event.start_time) && now <= new Date(event.end_time);
     });
     if (currentEvent) {
-        const duration = (currentEvent.end_time - currentEvent.start_time) / (1000 * 60);
-        // console.log(`Current event found for ${coin.name}: ${currentEvent.type} Event duration: ${duration} minutes`);
         return currentEvent;
     }
-    // console.log(`No current event found for ${coin.name}, creating a new event.`);
     return await createCoinEvent(coin.coin_id);
 }
 
 async function applyCoinEvent(price, event) {
-    // console.log(`Applying coin event - Type: ${event.event_type} impact: ${event.impact} is_positive: ${event.is_positive} Price: ${price}`);
     if (event.is_positive) {
         if (event.impact === 'high') {
-            price *= 1.2; // Increase price by 20%
-        } else if (event.impact === 'medium') {
             price *= 1.1; // Increase price by 10%
-        } else if (event.impact === 'low') {
+        } else if (event.impact === 'medium') {
             price *= 1.05; // Increase price by 5%
+        } else if (event.impact === 'low') {
+            price *= 1.01; // Increase price by 1%
         }
     } else {
         if (event.impact === 'high') {
-            price *= 0.8; // Decrease price by 20%
-        } else if (event.impact === 'medium') {
             price *= 0.9; // Decrease price by 10%
-        } else if (event.impact === 'low') {
+        } else if (event.impact === 'medium') {
             price *= 0.95; // Decrease price by 5%
+        } else if (event.impact === 'low') {
+            price *= 0.99; // Decrease price by 1%
         }
     }
     return price;
@@ -142,7 +147,6 @@ async function createCoinEvent(coin_id) {
     const startTime = new Date();
     const durationInMinutes = Math.floor(Math.random() * 15) + 1;
     const endTime = new Date(startTime.getTime() + durationInMinutes * 60000);
-    // console.log(`Creating new event for coin_id ${coin_id}: ${selectedEvent.type} - ${isPositive ? 'Positive' : 'Negative'} - Impact: ${selectedEvent.impact} - Start: ${startTime} - End: ${endTime}`);
 
     const event = {
         coin_id: coin_id,
