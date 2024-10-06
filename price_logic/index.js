@@ -4,6 +4,9 @@ const PriceHistory = require('../models/PriceHistory');
 const GeneralEvent = require('../models/GeneralEvent');
 
 const PRICE_FLOOR = 0.1; // Define a price floor constant
+const DAILY_FLUCTUATION_RANGE = 0.01; // Configurable daily fluctuation range
+const TREND_WEIGHT = 0.25; // Configurable trend weight
+const EVENT_DURATION_RANGE = { min: 5, max: 25 }; // Configurable event duration range in minutes
 
 async function priceAdjust() {
     console.log('------------------------------------');
@@ -12,14 +15,14 @@ async function priceAdjust() {
         const coins = await Coin.getAll();
         const marketTrend = await determineMarketTrend();
 
-        for (const coin of coins) {
+        await Promise.all(coins.map(async (coin) => {
             let newPrice = coin.current_price;
 
             // Apply market trend gradually
             newPrice = await applyMarketTrend(newPrice, marketTrend.type);
 
             // Add daily fluctuation
-            const dailyFluctuation = (Math.random() - 0.5) * 0.01; // Random between -0.5% to +0.5%
+            const dailyFluctuation = (Math.random() - 0.5) * DAILY_FLUCTUATION_RANGE; // Random between -0.5% to +0.5%
             newPrice *= (1 + dailyFluctuation);
 
             // Check and apply coin-specific event
@@ -31,10 +34,12 @@ async function priceAdjust() {
             // Ensure prices don't fall below the minimum threshold
             newPrice = Math.max(newPrice, PRICE_FLOOR);
 
-            // Update new price in the database and price history
-            await Coin.updatePriceById(coin.coin_id, newPrice);
-            await PriceHistory.addEntry(coin.coin_id, newPrice);
-        }
+            // Update new price in the database and price history within a transaction
+            await Coin.transaction(async (trx) => {
+                await Coin.updatePriceById(coin.coin_id, newPrice).transacting(trx);
+                await PriceHistory.addEntry(coin.coin_id, newPrice).transacting(trx);
+            });
+        }));
     } catch (error) {
         console.error(`Error during price adjustment: ${error.message}`);
     }
@@ -51,9 +56,26 @@ async function determineMarketTrend() {
 
 async function createMarketEvent() {
     console.log('Creating new market event');
-    const events = ['bull', 'bear', 'bull', 'bear', 'bull', 'bear', 'boom', 'bust'];
-    let type = events[Math.floor(Math.random() * events.length)];
-    const duration = Math.floor(Math.random() * 21) + 5; // Random duration between 5 to 20 minutes
+    const eventProbabilities = [
+        { type: 'bull', probability: 0.35 },
+        { type: 'bear', probability: 0.35 },
+        { type: 'boom', probability: 0.15 },
+        { type: 'bust', probability: 0.15 }
+    ];
+
+    let randomValue = Math.random();
+    let cumulativeProbability = 0;
+    let type;
+
+    for (const event of eventProbabilities) {
+        cumulativeProbability += event.probability;
+        if (randomValue <= cumulativeProbability) {
+            type = event.type;
+            break;
+        }
+    }
+
+    const duration = Math.floor(Math.random() * (EVENT_DURATION_RANGE.max - EVENT_DURATION_RANGE.min + 1)) + EVENT_DURATION_RANGE.min; // Random duration between min and max
     const marketTotal = await Coin.getMarketTotal();
     if (marketTotal > 450) {
         type = 'bust';
@@ -69,20 +91,19 @@ async function createMarketEvent() {
 
 async function applyMarketTrend(newPrice, trendType) {
     let percentageChange;
-    const trendWeight = 0.25; // Apply 25% of trend effect per adjustment cycle
 
     if (trendType === 'bull') {
         percentageChange = Math.random() * 0.09 + 0.005; // Random between 0.5% and 9%
-        newPrice += (trendWeight * (newPrice * percentageChange));
+        newPrice += (TREND_WEIGHT * (newPrice * percentageChange));
     } else if (trendType === 'bear') {
         percentageChange = Math.random() * 0.09 + 0.005; // Random between 0.5% and 9%
-        newPrice -= (trendWeight * (newPrice * percentageChange));
+        newPrice -= (TREND_WEIGHT * (newPrice * percentageChange));
     } else if (trendType === 'boom') {
         percentageChange = Math.random() * 0.05 + 0.1; // Random between 10% and 15%
-        newPrice += (trendWeight * (newPrice * percentageChange));
+        newPrice += (TREND_WEIGHT * (newPrice * percentageChange));
     } else if (trendType === 'bust') {
         percentageChange = Math.random() * 0.05 + 0.1; // Random between 10% and 15%
-        newPrice -= (trendWeight * (newPrice * percentageChange));
+        newPrice -= (TREND_WEIGHT * (newPrice * percentageChange));
     }
 
     return newPrice;
@@ -90,8 +111,8 @@ async function applyMarketTrend(newPrice, trendType) {
 
 async function checkCoinEvent(coin) {
     const coinEvents = await Coin.getCoinEvent(coin.coin_id);
+    const now = new Date();
     const currentEvent = coinEvents.find(event => {
-        const now = new Date();
         return now >= new Date(event.start_time) && now <= new Date(event.end_time);
     });
     if (currentEvent) {
@@ -145,7 +166,14 @@ async function createCoinEvent(coin_id) {
     const selectedEvent = selectedEvents[eventIndex];
 
     const startTime = new Date();
-    const durationInMinutes = Math.floor(Math.random() * 15) + 1;
+    let durationInMinutes;
+    if (selectedEvent.impact === 'high') {
+        durationInMinutes = Math.floor(Math.random() * 20) + 10; // Random between 10 to 30 minutes
+    } else if (selectedEvent.impact === 'medium') {
+        durationInMinutes = Math.floor(Math.random() * 10) + 5; // Random between 5 to 15 minutes
+    } else {
+        durationInMinutes = Math.floor(Math.random() * 5) + 1; // Random between 1 to 5 minutes
+    }
     const endTime = new Date(startTime.getTime() + durationInMinutes * 60000);
 
     const event = {
