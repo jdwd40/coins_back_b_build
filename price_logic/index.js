@@ -16,14 +16,28 @@ async function priceAdjust() {
         const marketTrend = await determineMarketTrend();
 
         await Promise.all(coins.map(async (coin) => {
-            let newPrice = coin.current_price;
+            let newPrice = parseFloat(coin.current_price);
+            if (isNaN(newPrice) || newPrice <= 0) {
+                console.error(`Invalid initial price for coin ${coin.coin_id}: ${coin.current_price}`);
+                return;
+            }
 
             // Apply market trend gradually
             newPrice = await applyMarketTrend(newPrice, marketTrend.type);
 
+            if (isNaN(newPrice)) {
+                console.error(`Invalid price after applying market trend for coin ${coin.coin_id}`);
+                return;
+            }
+
             // Add daily fluctuation
             const dailyFluctuation = (Math.random() - 0.5) * DAILY_FLUCTUATION_RANGE; // Random between -0.5% to +0.5%
             newPrice *= (1 + dailyFluctuation);
+
+            if (isNaN(newPrice)) {
+                console.error(`Invalid price after applying daily fluctuation for coin ${coin.coin_id}`);
+                return;
+            }
 
             // Check and apply coin-specific event
             const coinEvent = await checkCoinEvent(coin);
@@ -31,14 +45,22 @@ async function priceAdjust() {
                 newPrice = await applyCoinEvent(newPrice, coinEvent);
             }
 
+            if (isNaN(newPrice)) {
+                console.error(`Invalid price after applying coin event for coin ${coin.coin_id}`);
+                return;
+            }
+
             // Ensure prices don't fall below the minimum threshold
             newPrice = Math.max(newPrice, PRICE_FLOOR);
 
-            // Update new price in the database and price history within a transaction
-            await Coin.transaction(async (trx) => {
-                await Coin.updatePriceById(coin.coin_id, newPrice).transacting(trx);
-                await PriceHistory.addEntry(coin.coin_id, newPrice).transacting(trx);
-            });
+            if (isNaN(newPrice)) {
+                console.error(`Invalid price after applying price floor for coin ${coin.coin_id}`);
+                return;
+            }
+
+            // Update new price in the database and price history
+            await Coin.updatePriceById(coin.coin_id, newPrice);
+            await PriceHistory.addEntry(coin.coin_id, newPrice);
         }));
     } catch (error) {
         console.error(`Error during price adjustment: ${error.message}`);

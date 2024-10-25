@@ -29,6 +29,7 @@ describe('Coin Model', () => {
             const coin = await Coin.getById(1);
 
             expect(db.query).toHaveBeenCalledWith('SELECT * FROM coins WHERE coin_id = $1', [1]);
+            console.log(coin);
             expect(coin).toEqual(mockCoin);
         });
     });
