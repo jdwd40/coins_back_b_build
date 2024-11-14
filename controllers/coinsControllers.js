@@ -58,7 +58,7 @@ exports.getCoinById = async (req, res) => {
                 // console.log(`Current price: ${price}, Updated accumulator: ${updatedAcc}`);
                 return updatedAcc;
             }, 0);
-           // console.log("Sum:", sum); // Check the sum
+            // console.log("Sum:", sum); // Check the sum
 
             coin.meanAverage = sum / prices.length;
             // console.log("Mean Average:", coin.meanAverage); // Check the calculated average
@@ -77,7 +77,7 @@ exports.getCoinById = async (req, res) => {
             coin.eventType = coinEvent[0].type;
             coin.coinEventPositive = coinEvent[0].is_positive;
             coin.eventImpact = coinEvent[0].impact;
-            
+
         }
 
         res.status(200).json(coin);
@@ -135,8 +135,12 @@ exports.deleteCoin = async (req, res) => {
 exports.updateCoinPrice = async (req, res) => {
     try {
         const id = req.params.id;
-        const { newPrice } = req.body; // Assuming the new price is passed in request body
-        const updatedCoin = await Coin.updatePriceById(id, newPrice);
+        const { newPrice } = req.body; // the new price is passed in request body
+        const numericNewPrice = Number(newPrice); // convert newPrice to number
+
+        // Update the current price and check for all-time high/low
+        const updatedCoin = await Coin.updatePriceById(id, numericNewPrice);
+
         res.status(200).json(updatedCoin);
     } catch (error) {
         res.status(500).json({ message: 'Error updating coin price', error: error.message });

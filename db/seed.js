@@ -3,7 +3,7 @@ const format = require('pg-format');
 
 const seed = (seedData) => {
     const { users, portfolios, transactions, coins, price_history, generalEventsData, coinEventsData } = seedData; // Include transactions in your seed data
-    console.log('General Events Data:', generalEventsData);
+    // console.log('General Events Data:', generalEventsData);
 
     return db
         .query('DROP TABLE IF EXISTS transactions CASCADE;')
@@ -13,7 +13,7 @@ const seed = (seedData) => {
         .then(() => db.query('DROP TABLE IF EXISTS price_history CASCADE;'))
         .then(() => db.query('DROP TABLE IF EXISTS general_events CASCADE;'))
         .then(() => db.query('DROP TABLE IF EXISTS coin_events CASCADE;'))
-        .then(() => db.query('DROP TABLE IF EXISTS portfolios CASCADE;'))
+        .then(() => db.query('DROP TABLE IF EXISTS market_stats CASCADE;')) // Drop market_stats table if exists
         .then(() => {
             return db.query(`
                 CREATE TABLE users (
@@ -108,6 +108,8 @@ const seed = (seedData) => {
                     name VARCHAR(255) UNIQUE NOT NULL,
                     symbol VARCHAR(10) UNIQUE NOT NULL,
                     current_price NUMERIC(4, 2) NOT NULL,
+                    all_time_high NUMERIC(10, 2),
+                    all_time_low NUMERIC(10, 2),
                     supply NUMERIC(10) NOT NULL,
                     market_cap NUMERIC(10) NOT NULL,
                     date_added TIMESTAMP NOT NULL,
@@ -119,6 +121,8 @@ const seed = (seedData) => {
                 coin.name,
                 coin.symbol,
                 coin.current_price,
+                coin.all_time_high,
+                coin.all_time_low,
                 coin.supply,
                 coin.market_cap,
                 coin.date_added,
@@ -126,7 +130,7 @@ const seed = (seedData) => {
             ]);
             const sql = format(`
                 INSERT INTO coins 
-                (name, symbol, current_price, supply, market_cap, date_added, description) 
+                (name, symbol, current_price, all_time_high, all_time_low, supply, market_cap, date_added, description) 
                 VALUES %L RETURNING *;`,
                 formattedCoins
             );
@@ -186,22 +190,6 @@ const seed = (seedData) => {
             return db.query(sqlGeneralEvents);
         })
         .then(() => {
-            // Insert General Events Data
-            const formattedGeneralEvents = generalEventsData.map(event => [
-                event.type,
-                event.start_time,
-                event.end_time,
-                JSON.stringify(event.details)
-            ]);
-            const sqlGeneralEvents = format(`
-                INSERT INTO general_events 
-                (type, start_time, end_time, details) 
-                VALUES %L RETURNING *;`,
-                formattedGeneralEvents
-            );
-            return db.query(sqlGeneralEvents);
-        })
-        .then(() => {
             // Create Coin Events Table
             return db.query(`
             CREATE TABLE coin_events (
@@ -232,6 +220,19 @@ const seed = (seedData) => {
                 formattedCoinEvents
             );
             return db.query(sqlCoinEvents);
+        })
+        .then(() => {
+            // Create Market Stats Table
+            return db.query(`
+                CREATE TABLE market_stats (
+                    id SERIAL PRIMARY KEY,
+                    all_time_high NUMERIC,
+                    last_5mins_value NUMERIC,
+                    last_10mins_value NUMERIC,
+                    last_30mins_value NUMERIC,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
         })
         .then(() => {
             // Create an index on the coin_id column
