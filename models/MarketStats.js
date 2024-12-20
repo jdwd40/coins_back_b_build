@@ -77,24 +77,37 @@ class MarketStats {
     }
 
     static async getAllTimeHighMarketValue() {
-        // function should get the market value of coins every 5 mins and return the highest value
         try {
+            // Get the current market value
+            const currentMarketValue = await this.getMarketValue();
+
+            // Get the all-time high market value from the market_stats table
             const { rows } = await db.query(`
-                SELECT MAX(total_market_cap) AS all_time_high_market_cap
-                FROM (
-                    SELECT SUM(price) AS total_market_cap
-                    FROM price_history
-                    GROUP BY timestamp
-                ) AS grouped_market_caps
+                SELECT MAX(all_time_high) AS all_time_high_market_value
+                FROM market_stats
             `);
-            return rows[0].all_time_high_market_cap;
+            const allTimeHighMarketValue = rows[0].all_time_high_market_value;
+
+            // Compare the current market value with the all-time high market value
+            if (currentMarketValue > allTimeHighMarketValue) {
+                // Update the market_stats table with the new all-time high market value
+                await db.query(`
+                    INSERT INTO market_stats (all_time_high, updated_at)
+                    VALUES ($1, NOW())
+                `, [currentMarketValue]);
+                console.log('All-time high market value updated to:', currentMarketValue);
+
+                // Return the current market value
+                return currentMarketValue;
+            } else {
+                // Return the all-time high market value from the database
+                return allTimeHighMarketValue;
+            }
         } catch (error) {
-            console.error('Error retrieving all time high market cap:', error);
+            console.error('Error retrieving all-time high market value:', error);
             throw error;
         }
-
     }
-    
 
     static async getAllTimeLow() {
         try {
@@ -112,7 +125,6 @@ class MarketStats {
             throw error;
         }
     }
-    
 }
 
 module.exports = MarketStats;
